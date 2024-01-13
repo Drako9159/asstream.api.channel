@@ -1,0 +1,8 @@
+npm install concurrently nodemon typescript ts-node -D -E
+npx tsc --init
+
+
+npm install express dotenv bcryptjs cors jsonwebtoken uuid mongoose -E
+npm install --save-dev  @types/bcryptjs @types/jsonwebtoken @types/uuid @types/express @types/node @types/mongoose @types/cors
+
+
