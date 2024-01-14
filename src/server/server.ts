@@ -8,6 +8,8 @@ import cookieParser from "cookie-parser";
 import routerAuth from "../network/routes/public/auth.routes";
 import routerCategory from "../network/routes/admin/category.routes";
 import routerEntry from "../network/routes/admin/entry.routes";
+import routerApiTheMovieDb from "../network/routes/admin/apiTheMovieDb.routes"
+
 
 class Server {
   private app: Application;
@@ -20,6 +22,7 @@ class Server {
     auth: "/api/auth",
     category: "/api/category",
     entry: "/api/entry",
+    apiTheMovieDb: "/api/api_the_movie_db"
     //user: "/api/users",
   };
   private corsOptions = {
@@ -52,6 +55,7 @@ class Server {
     this.app.use(this.path.auth, routerAuth);
     this.app.use(this.path.category, routerCategory);
     this.app.use(this.path.entry, routerEntry);
+    this.app.use(this.path.apiTheMovieDb, routerApiTheMovieDb)
     //this.app.use(this.path.user, routerAdminUser);
     //this.app.use(this.path.post, routerPublicPost);
     //this.app.use(this.path.post, routerAdminPost);

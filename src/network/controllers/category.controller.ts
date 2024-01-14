@@ -50,7 +50,9 @@ export async function updateCategory(req: Request, res: Response) {
   }
 }
 
-export async function getAllCategories(req: Request, res: Response) {
+
+
+export async function getApiChannel(req: Request, res: Response) {
   try {
     // Utiliza el método `populate` para obtener las entradas asociadas a cada categoría
     const categoriesWithEntries = await CategoryModel.find().populate(
@@ -88,6 +90,18 @@ export async function getAllCategories(req: Request, res: Response) {
     };
 
     return res.status(200).json(template);
+  } catch (error) {
+    console.error("Error al obtener categorías con entradas:", error);
+    return handleError(res);
+  }
+}
+
+
+
+export async function getAllCategories(req: Request, res: Response) {
+  try {
+    const categoriesWithEntries = await CategoryModel.find({})
+    return res.status(200).json(categoriesWithEntries);
   } catch (error) {
     console.error("Error al obtener categorías con entradas:", error);
     return handleError(res);

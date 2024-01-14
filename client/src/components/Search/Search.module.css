@@ -1,0 +1,139 @@
+.container {
+  background-color: red;
+}
+.container {
+  font-family: Arial, Helvetica, sans-serif;
+  width: 100%;
+  color: #ffffff;
+}
+
+.form {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 10px;
+}
+.form form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+}
+.form input {
+  outline: none;
+  border-radius: 5px;
+  border: none;
+  padding: 5px;
+  background-color: #cccccc;
+}
+.form select {
+  border: none;
+  padding: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+  outline: none;
+  background-color: #cccccc;
+}
+
+.form button {
+  background-color: #0090c9;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100px;
+}
+.form button:disabled {
+  background-color: #007aaa;
+  cursor: not-allowed;
+  box-shadow: 0 0 0 0;
+}
+
+.form button:hover:disabled {
+  box-shadow: none;
+}
+
+.form button:hover {
+  background-color: #007aaa;
+  box-shadow: 0 0 5px #000000;
+}
+.form .left {
+  width: 35%;
+}
+.form .right {
+  width: 35%;
+}
+
+.form .extra {
+  width: 30%;
+}
+@media screen and (max-width: 750px) {
+  .form {
+    flex-direction: column;
+  }
+  .form .left {
+    width: 100%;
+  }
+  .form .right {
+    width: 100%;
+  }
+}
+
+.results {
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.result {
+  border-radius: 10px;
+  box-shadow: 0 0 5px #000000;
+  width: 200px;
+  padding: 5px;
+  transition: background-color 0.3s ease;
+}
+.result:hover {
+  background-color: #adadad;
+  cursor: pointer;
+}
+
+.result h3 {
+  font-size: 15px;
+}
+.result p {
+  font-size: 13px;
+  max-height: 130px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #888888 #dddddd;
+}
+
+.result p::-webkit-scrollbar {
+  width: 6px; /* Ajusta el grosor de la barra de desplazamiento */
+}
+
+.result p::-webkit-scrollbar-thumb {
+  background-color: #4e4e4e; /* Color de la barra de desplazamiento */
+  border-radius: 3px; /* Ajusta la forma de la barra de desplazamiento */
+}
+
+.result h3 {
+  margin: 0;
+}
+.result .images {
+  position: relative;
+}
+.result .poster {
+  width: 65px;
+  height: 110px;
+  position: absolute;
+}
+.result .banner {
+  width: 100%;
+  top: 0;
+  left: 0;
+}

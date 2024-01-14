@@ -1,0 +1,49 @@
+.container {
+    font-family: Arial, Helvetica, sans-serif;
+    color: #4d4d4d;
+    gap: 5px;
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px;
+    justify-content: center;
+  }
+  
+  .card {
+    background-color: #cccccc;
+    padding: 5px;
+    border-radius: 5px;
+    width: 200px;
+  }
+  .card p {
+    margin: 0;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    font-size: 10px;
+  }
+  .buttons {
+    display: flex;
+    gap: 2px;
+  }
+  
+  .buttons button {
+    border: none;
+    color: #ffffff;
+  
+    padding: 5px;
+    border-radius: 5px;
+    margin-top: 5px;
+    cursor: pointer;
+  }
+  .buttons button:hover {
+    box-shadow: 0 0 2px 0 #000000;
+  }
+  
+  .buttons button:nth-child(1) {
+    background-color: #da0000;
+  }
+  .buttons button:nth-child(2) {
+    background-color: #1d618f;
+  }
+  

@@ -12,22 +12,27 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const config_1 = __importDefault(require("config"));
+const config_1 = __importDefault(require("../config"));
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const node_path_1 = __importDefault(require("node:path"));
-const config_2 = require("db/config");
+const config_2 = require("../db/config");
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const auth_routes_1 = __importDefault(require("../network/routes/public/auth.routes"));
+const category_routes_1 = __importDefault(require("../network/routes/admin/category.routes"));
+const entry_routes_1 = __importDefault(require("../network/routes/admin/entry.routes"));
 class Server {
     constructor() {
         this.path = {
             error404: "*",
             client: "/",
             auth: "/api/auth",
-            post: "/api/posts",
-            user: "/api/users",
+            category: "/api/category",
+            entry: "/api/entry",
+            //user: "/api/users",
         };
         this.corsOptions = {
-            origin: ["http://localhost:5173", "http://localhost:3000"],
+            origin: ["http://localhost:5173", "http://localhost:3000", "*"],
             exposedHeaders: ["authorization", "token"],
             credentials: true,
         };
@@ -44,12 +49,14 @@ class Server {
     }
     middlewares() {
         this.app.use(express_1.default.json());
+        this.app.use((0, cookie_parser_1.default)());
         this.app.use((0, cors_1.default)(this.corsOptions));
         this.app.use(express_1.default.static(node_path_1.default.join(process.cwd(), "./client/dist")));
     }
     routes() {
-        //this.app.use(this.path.auth, routerAuth);
-        //this.app.use(this.path.user, routerPublicUser);
+        this.app.use(this.path.auth, auth_routes_1.default);
+        this.app.use(this.path.category, category_routes_1.default);
+        this.app.use(this.path.entry, entry_routes_1.default);
         //this.app.use(this.path.user, routerAdminUser);
         //this.app.use(this.path.post, routerPublicPost);
         //this.app.use(this.path.post, routerAdminPost);
@@ -62,3 +69,4 @@ class Server {
         });
     }
 }
+exports.default = Server;
