@@ -25,6 +25,28 @@ export async function pushEntry(req: Request, res: Response) {
       backdrop,
     }: any = req.body;
 
+    console.log({
+      longDescription: longDescription,
+      status: status,
+      thumbnail: thumbnail,
+      releaseDate: releaseDate,
+      genre: genre,
+      tag: tag,
+      shortDescription: shortDescription,
+      title: title,
+      content: {
+        duration: contentDuration,
+        videos: {
+          videoType: contentVideoType,
+          url: contentVideoUrl,
+          quality: contentVideoQuality,
+        },
+        language: contentLanguage,
+        dateAdded: contentDateAdded,
+      },
+      backdrop: backdrop,
+    });
+
     const newEntry = new EntryModel({
       longDescription: longDescription,
       status: status,
@@ -167,6 +189,33 @@ export async function updateEntry(req: Request, res: Response) {
     return res.status(200).json({ message: "ENTRY_UPDATED" });
   } catch (error) {
     console.error("Error al actualizar el Entry:", error);
+    return handleError(res);
+  }
+}
+
+export async function getAllEntries(req: Request, res: Response) {
+  try {
+    const categoriesWithEntries = await CategoryModel.find({}).populate("entries");
+
+    // Extraer las entradas de cada categoría y agregar el categoryId a cada entrada
+    const entriesWithCategory: any[] = [];
+    categoriesWithEntries.forEach(category => {
+      const categoryId = category._id.toString();
+      const categoryName = category.name.toString();
+
+      category.entries.forEach((entry: any) => {
+        entriesWithCategory.push({ ...entry.toObject(), categoryId, categoryName });
+      });
+    });
+
+    return res.status(200).json(entriesWithCategory);
+
+
+
+
+
+  } catch (error) {
+    console.log("Error on get data entries");
     return handleError(res);
   }
 }

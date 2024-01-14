@@ -1,5 +1,4 @@
-import { createCategory } from "../../api/cateogory";
-import { pushElementIpTvRequest } from "../../api/search";
+import { createCategory } from "../../api/category";
 import styles from "./PushCategory.module.css";
 import { useRef } from "react";
 
@@ -10,8 +9,8 @@ export default function PushCategory({ setComponent }: { setComponent: any }) {
 
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
-    const nameValue = nameRef.current?.value;
-    const response = await createCategory(nameValue as string)
+    const nameValue = nameRef.current?.value as string;
+    const response = await createCategory(nameValue)
     
     if (response.status === 201) {
       setComponent("movies");

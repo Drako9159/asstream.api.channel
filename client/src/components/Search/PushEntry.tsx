@@ -1,9 +1,14 @@
-import { pushElementMovieRequest, searchRequest } from "../../api/search";
-import { useRef, useState } from "react";
+import {
+  pushElementMovieRequest,
+  pushEntry,
+  searchRequest,
+} from "../../api/search";
+import { useEffect, useRef, useState } from "react";
 import { useSearchStore } from "../../store/search";
 import styles from "./Search.module.css";
 import { getMoviesRequest } from "../../api/movies";
 import { useMoviesStore } from "../../store/movies";
+import { getAllCategory } from "../../api/category";
 
 export default function PushEntry({ setComponent }: { setComponent: any }) {
   const setMovies = useMoviesStore((state) => state.setMoviesStore);
@@ -11,11 +16,19 @@ export default function PushEntry({ setComponent }: { setComponent: any }) {
   const results = useSearchStore((state) => state.results);
   const [item, setItem] = useState<any>(null);
   const [isSelected, setIsSelected] = useState<boolean>(true);
+  const [categories, setCategories] = useState<any>([]);
+
+  useEffect(() => {
+    async function getAllCategories() {
+      const response = await getAllCategory();
+      setCategories(response.data);
+    }
+    getAllCategories();
+  }, []);
 
   async function api(title: string, language: string, page: string) {
-    await searchRequest(title, language, page).then((res) => {
-      setResultsStore(res.data.content.results);
-    });
+    const response = await searchRequest(title, language, page);
+    setResultsStore(response.data.results);
   }
 
   const titleRef = useRef<HTMLInputElement>(null);
@@ -23,7 +36,7 @@ export default function PushEntry({ setComponent }: { setComponent: any }) {
   const pageRef = useRef<HTMLInputElement>(null);
 
   const sourceRef = useRef<HTMLInputElement>(null);
-  const sourceTypeRef = useRef<HTMLSelectElement>(null);
+  const categoryRef = useRef<HTMLSelectElement>(null);
   const qualityRef = useRef<HTMLSelectElement>(null);
 
   function handleSubmit(e: React.FormEvent) {
@@ -40,20 +53,25 @@ export default function PushEntry({ setComponent }: { setComponent: any }) {
     setIsSelected(false);
   }
 
-  async function handleSend(e: React.FormEvent) {
+  async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     const sourceValue = sourceRef.current?.value;
     const qualityValue = qualityRef.current?.value;
-    const sourceTypeValue = sourceTypeRef.current?.value;
+    const categoryValue = categoryRef.current?.value;
+
     const prepare = {
       ...item,
       quality: qualityValue,
       source: sourceValue,
-      source_type: sourceTypeValue,
+      categoryId: categoryValue,
     };
 
-    const res = await pushElementMovieRequest(prepare);
-    if (res.status === 200) {
+    
+
+
+    const res = await pushEntry(prepare);
+    
+    if (res.status === 201) {
       const res = await getMoviesRequest();
       setMovies(res.data.content);
       setComponent("movies");
@@ -92,7 +110,7 @@ export default function PushEntry({ setComponent }: { setComponent: any }) {
           </form>
         </div>
         <div className={styles.right}>
-          <form onSubmit={handleSend}>
+          <form onSubmit={handleSave}>
             <h2 style={{ margin: "0" }}>Quality & Source</h2>
             <select
               required
@@ -100,22 +118,19 @@ export default function PushEntry({ setComponent }: { setComponent: any }) {
               disabled={isSelected}
               ref={qualityRef}
             >
-              <option value="Cam">Cam</option>
-              <option value="TS-HQ">TS-HQ</option>
-              <option value="HD">HD</option>
-              <option value="WEB-S">WEB-S</option>
+              <option value="SD">SD</option>
+              <option value="HD">HQ</option>
+              <option value="FHD">FHD</option>
             </select>
             <select
               required
-              id="sourceType-selector"
+              id="category-selector"
               disabled={isSelected}
-              ref={sourceTypeRef}
+              ref={categoryRef}
             >
-              <option value="video/mp4">mp4</option>
-              <option value="video/webm">webm</option>
-              <option value="video/x-matroska">mkv</option>
-              <option value="video/mp2t">ts</option>
-              <option value="application/x-mpegURL">ts-m3u8</option>
+              {categories.map((e: any) => {
+                return <option value={e._id}>{e.name}</option>;
+              })}
             </select>
             <input
               type="text"

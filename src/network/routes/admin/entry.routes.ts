@@ -1,7 +1,11 @@
 import { Router } from "express";
 import { validateUserAdmin } from "../../../middlewares/validateUserAdmin";
-import { deleteEntry, pushEntry, updateEntry } from "../../controllers/entry.controller";
-
+import {
+  deleteEntry,
+  getAllEntries,
+  pushEntry,
+  updateEntry,
+} from "../../controllers/entry.controller";
 
 /*
 import {
@@ -13,12 +17,13 @@ import {
 
 const router: Router = Router();
 
-router.post("/", validateUserAdmin, pushEntry)
-
+router.post("/", validateUserAdmin, pushEntry);
 
 router.delete("/:id", validateUserAdmin, deleteEntry);
 
 router.put("/", validateUserAdmin, updateEntry);
+
+router.get("/", validateUserAdmin, getAllEntries);
 
 /*
 router.put("/:id", validateUserAdmin, updateOnePost);

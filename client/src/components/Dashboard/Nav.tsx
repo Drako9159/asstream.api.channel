@@ -33,8 +33,13 @@ export default function Nav({ title, setComponent }: { title: string, setCompone
             <li onClick={() => setComponent("search")}>Push Movie</li>
             <li onClick={() => setComponent("iptv-list")}>IPTV</li>
             <li onClick={() => setComponent("push-iptv")}>Push IPTV</li>
+
+
+            <li onClick={() => setComponent("category-list")}>Category List</li>
+            <li onClick={() => setComponent("entry-list")}>Entry List</li>
             <li onClick={() => setComponent("push-category")}>Push Category</li>
             <li onClick={() => setComponent("push-entry")}>Push Entry</li>
+            <li onClick={() => setComponent("push-live")}>Push Live</li>
           </ul>
         </nav>
       </div>
