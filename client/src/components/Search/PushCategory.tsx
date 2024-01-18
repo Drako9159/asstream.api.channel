@@ -10,8 +10,8 @@ export default function PushCategory({ setComponent }: { setComponent: any }) {
   async function handleSend(e: React.FormEvent) {
     e.preventDefault();
     const nameValue = nameRef.current?.value as string;
-    const response = await createCategory(nameValue)
-    
+    const response = await createCategory(nameValue);
+
     if (response.status === 201) {
       setComponent("movies");
     }

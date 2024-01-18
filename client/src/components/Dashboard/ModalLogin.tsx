@@ -13,7 +13,6 @@ export default function ModalLogin() {
     try {
       await dashboardLoginRequest(email, password).then((res) => {
         setToken(res.headers.authorization);
-       
       });
     } catch (err) {
       console.log(err);
@@ -23,12 +22,7 @@ export default function ModalLogin() {
     <div className={styles.container}>
       <h2>Please Login</h2>
       <form className={styles.form} onSubmit={handleLogin}>
-        <input
-          type="text"
-          placeholder="Email"
-          name="email"
-          id="email"
-        />
+        <input type="text" placeholder="Email" name="email" id="email" />
 
         <input
           type="password"

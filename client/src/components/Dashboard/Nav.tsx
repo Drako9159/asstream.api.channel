@@ -3,7 +3,13 @@ import iconMenu from "../../assets/icons/dashboard/menu.svg";
 import { useState } from "react";
 import { useDashboardStore } from "../../store/dashboard";
 
-export default function Nav({ title, setComponent }: { title: string, setComponent: any }) {
+export default function Nav({
+  title,
+  setComponent,
+}: {
+  title: string;
+  setComponent: any;
+}) {
   const [activeButton, setActiveButton] = useState<boolean>(false);
   const [navIn, setNavIn] = useState<any>(null);
   const logout = useDashboardStore((state) => state.logout);
@@ -29,11 +35,10 @@ export default function Nav({ title, setComponent }: { title: string, setCompone
           <ul>
             <li onClick={logout}>Logout</li>
             <li onClick={() => setComponent("movies")}>Movies</li>
-          
+
             <li onClick={() => setComponent("search")}>Push Movie</li>
             <li onClick={() => setComponent("iptv-list")}>IPTV</li>
             <li onClick={() => setComponent("push-iptv")}>Push IPTV</li>
-
 
             <li onClick={() => setComponent("category-list")}>Category List</li>
             <li onClick={() => setComponent("entry-list")}>Entry List</li>

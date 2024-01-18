@@ -5,7 +5,6 @@ import styles from "./CardPrimaryDashboard.module.css";
 import UpdateMovie from "../Search/UpdateMovie";
 
 export default function CardPrimaryDashboard() {
- 
   const setMovies = useMoviesStore((state) => state.setMoviesStore);
   const movies = useMoviesStore((state) => state.movies);
   const [item, setItem] = useState<any>(null);
@@ -18,8 +17,6 @@ export default function CardPrimaryDashboard() {
     }
     api();
   }, []);
-
-  
 
   async function deleteMovie(id: string) {
     const res = await deleteMovieRequest(id);
