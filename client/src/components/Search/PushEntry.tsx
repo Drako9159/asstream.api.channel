@@ -1,8 +1,4 @@
-import {
-  pushElementMovieRequest,
-  pushEntry,
-  searchRequest,
-} from "../../api/search";
+import { pushEntry, searchRequest } from "../../api/search";
 import { useEffect, useRef, useState } from "react";
 import { useSearchStore } from "../../store/search";
 import styles from "./Search.module.css";
@@ -66,11 +62,8 @@ export default function PushEntry({ setComponent }: { setComponent: any }) {
       categoryId: categoryValue,
     };
 
-    
-
-
     const res = await pushEntry(prepare);
-    
+
     if (res.status === 201) {
       const res = await getMoviesRequest();
       setMovies(res.data.content);
@@ -119,7 +112,7 @@ export default function PushEntry({ setComponent }: { setComponent: any }) {
               ref={qualityRef}
             >
               <option value="SD">SD</option>
-              <option value="HD">HQ</option>
+              <option value="HD">HD</option>
               <option value="FHD">FHD</option>
             </select>
             <select

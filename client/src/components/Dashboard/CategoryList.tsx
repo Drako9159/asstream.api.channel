@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
-import { deleteMovieRequest, getMoviesRequest } from "../../api/movies";
-import { useMoviesStore } from "../../store/movies";
+
 import styles from "./CategoryList.module.css";
-import UpdateMovie from "../Search/UpdateMovie";
 import { deleteCategory, getAllCategory } from "../../api/category";
 import UpdateCategory from "../Search/UpdateCategory";
 import { useCategoryStore } from "../../store/category";
@@ -63,7 +61,6 @@ export default function CategoryList() {
         ""
       ) : (
         <UpdateCategory
-          id={item.id}
           element={item.element}
           setIsUpdate={setIsUpdate}
         />

@@ -1,5 +1,5 @@
 import { getAllCategory } from "../../api/category";
-import { pushElementIpTvRequest, pushLive } from "../../api/search";
+import { pushLive } from "../../api/search";
 import { useIptvStore } from "../../store/iptv";
 import styles from "./UploadIptv.module.css";
 import { useEffect, useRef, useState } from "react";

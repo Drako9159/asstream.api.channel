@@ -24,4 +24,5 @@ s
 
 router.put("/:id", validateUserAdmin, updateOnePost);
 */
+
 export default router;

@@ -21,6 +21,9 @@ const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const auth_routes_1 = __importDefault(require("../network/routes/public/auth.routes"));
 const category_routes_1 = __importDefault(require("../network/routes/admin/category.routes"));
 const entry_routes_1 = __importDefault(require("../network/routes/admin/entry.routes"));
+const apiTheMovieDb_routes_1 = __importDefault(require("../network/routes/admin/apiTheMovieDb.routes"));
+const jsonApi_routes_1 = __importDefault(require("../network/routes/public/jsonApi.routes"));
+const client_routes_1 = __importDefault(require("../network/routes/extra/client.routes"));
 class Server {
     constructor() {
         this.path = {
@@ -29,10 +32,12 @@ class Server {
             auth: "/api/auth",
             category: "/api/category",
             entry: "/api/entry",
+            apiTheMovieDb: "/api/api_the_movie_db",
+            channelRoku: "/api/channel"
             //user: "/api/users",
         };
         this.corsOptions = {
-            origin: ["http://localhost:5173", "http://localhost:3000", "*"],
+            origin: ["http://localhost:5173", "http://localhost:3000", "https://asstream-api-channel.fly.dev", "*"],
             exposedHeaders: ["authorization", "token"],
             credentials: true,
         };
@@ -57,10 +62,12 @@ class Server {
         this.app.use(this.path.auth, auth_routes_1.default);
         this.app.use(this.path.category, category_routes_1.default);
         this.app.use(this.path.entry, entry_routes_1.default);
+        this.app.use(this.path.apiTheMovieDb, apiTheMovieDb_routes_1.default);
+        this.app.use(this.path.channelRoku, jsonApi_routes_1.default);
         //this.app.use(this.path.user, routerAdminUser);
         //this.app.use(this.path.post, routerPublicPost);
         //this.app.use(this.path.post, routerAdminPost);
-        //this.app.use(this.path.client, routerClient);
+        this.app.use(this.path.client, client_routes_1.default);
         //this.app.use(this.path.error404, routerError404);
     }
     listen() {

@@ -13,4 +13,6 @@ exports.default = {
     port: process.env.PORT || 3000,
     mongoDB: process.env.MONGODB_URI,
     jwtSecret: process.env.JWT_SECRET,
+    apiToken: process.env.API_TOKEN,
+    tbMoviesUrl: process.env.TB_MOVIES_URL,
 };

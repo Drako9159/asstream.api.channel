@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./Search.module.css";
-import { getMoviesRequest, updateMovieRequest } from "../../api/movies";
+import { getMoviesRequest } from "../../api/movies";
 import { useEntryStore } from "../../store/entry";
 import { getAllCategory } from "../../api/category";
 import { updateEntry } from "../../api/entry";
@@ -10,24 +10,29 @@ import { updateEntry } from "../../api/entry";
 // }
 
 export default function UpdateEntry({
-  id,
   element,
   setIsUpdate,
 }: {
-  id: string;
   element: any;
   setIsUpdate: any;
 }) {
   const [categories, setCategories] = useState<any>([]);
+  const [currentSource, setCurrentSource] = useState<string>("");
+ 
+  useEffect(() => {
+    setCurrentSource(element.content.videos.url);
+    console.log(element.content.videos.quality);
+  }, [element]);
 
   useEffect(() => {
     async function getAllCategories() {
       const response = await getAllCategory();
       setCategories(response.data);
     }
-
     getAllCategories();
   }, []);
+
+ 
 
   const setEntries = useEntryStore((state) => state.setEntryStore);
 
@@ -86,6 +91,7 @@ export default function UpdateEntry({
               })}
             </select>
 
+            
             <select
               required
               id="quality-selector"
@@ -114,8 +120,9 @@ export default function UpdateEntry({
               placeholder="source"
               required
               ref={sourceRef}
-              defaultValue={element.content.videos.url}
+              defaultValue={currentSource}
             />
+
             <div style={{ display: "flex", gap: "5px" }}>
               <button type="submit">Send</button>
               <button

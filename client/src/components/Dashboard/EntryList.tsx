@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
-import { deleteMovieRequest, getMoviesRequest } from "../../api/movies";
-import { useMoviesStore } from "../../store/movies";
+
 import styles from "./EntryList.module.css";
-import UpdateMovie from "../Search/UpdateMovie";
 import { deleteEntry, getAllEntry } from "../../api/entry";
 import { useEntryStore } from "../../store/entry";
 import UpdateEntry from "../Search/UpdateEntry";
@@ -29,8 +27,8 @@ export default function EntryList() {
     }
   }
 
-  function handleUpdate(id: string, element: any) {
-    setItem({ id: id, element: element });
+  function handleUpdate(element: any) {
+    setItem(element);
     setIsUpdate(true);
   }
 
@@ -47,7 +45,7 @@ export default function EntryList() {
                 
                 <div className={styles.buttons}>
                   <button onClick={() => handleDelete(e._id)}>Delete</button>
-                  <button onClick={() => handleUpdate(e._id, e)}>Edit</button>
+                  <button onClick={() => handleUpdate(e)}>Edit</button>
                 </div>
               </div>
             );
@@ -56,8 +54,7 @@ export default function EntryList() {
         ""
       ) : (
         <UpdateEntry
-          id={item.id}
-          element={item.element}
+          element={item}
           setIsUpdate={setIsUpdate}
         />
       )}

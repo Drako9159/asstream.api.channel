@@ -1,19 +1,21 @@
-
 import styles from "./UpdateCategory.module.css";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getAllCategory, updateCategory } from "../../api/category";
 import { useCategoryStore } from "../../store/category";
 
 export default function UpdateCategory({
-  id,
   element,
   setIsUpdate,
 }: {
-  id: string;
   element: any;
   setIsUpdate: any;
 }) {
   const setCategories = useCategoryStore((state) => state.setCategoryStore);
+  const [currentName, setCurrentName] = useState<string>("");
+
+  useEffect(() => {
+    setCurrentName(element.name);
+  }, [element.name]);
 
   const nameRef = useRef<HTMLInputElement>(null);
   const idRef = useRef<HTMLInputElement>(null);
@@ -45,7 +47,7 @@ export default function UpdateCategory({
         <div className={styles.right}>
           <form onSubmit={handleSend}>
             <h2 style={{ margin: "0" }}>Category</h2>
-
+            {element.name}
             <input
               type="text"
               name="id"
@@ -64,7 +66,7 @@ export default function UpdateCategory({
               placeholder="Name"
               required
               ref={nameRef}
-              defaultValue={element.name}
+              defaultValue={currentName}
             />
 
             <div style={{ display: "flex", gap: "5px" }}>
