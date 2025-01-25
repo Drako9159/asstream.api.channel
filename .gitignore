@@ -10,5 +10,3 @@ Dockerfile
 /dist
 /client/dist
 /Dockerfile
-fly.toml
-.dockerignore
