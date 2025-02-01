@@ -1,5 +1,5 @@
-import CardPrimaryDashboard from "../components/Dashboard/CardPrimaryDashboard";
-import ModalLogin from "../components/Dashboard/ModalLogin";
+// import CardPrimaryDashboard from "../components/Dashboard/CardPrimaryDashboard";
+// import ModalLogin from "../components/Dashboard/ModalLogin";
 import Nav from "../components/Dashboard/Nav";
 import { useDashboardStore } from "../store/dashboard";
 import Search from "../components/Search/Search";
@@ -11,9 +11,16 @@ import PushEntry from "../components/Search/PushEntry";
 import PushLive from "../components/Search/PushLive";
 import CategoryList from "../components/Dashboard/CategoryList";
 import EntryList from "../components/Dashboard/EntryList";
+import LoginForm from "../components/Dashboard/LoginForm";
+import DashboardPage from "../components/Dashboard/new/DashboardPage";
+import { Toaster } from "react-hot-toast";
 
 export default function Dashboard() {
+
+  useDashboardStore((state) => state.checkAuth());
+
   const isAuth = useDashboardStore((state) => state.isAuth);
+
   const [title, setTitle] = useState("Dashboard");
   const [component, setComponent] = useState("movies");
 
@@ -31,12 +38,40 @@ export default function Dashboard() {
     if (component === "push-live") setTitle("Push Live");
   }, [component]);
 
-  if (!isAuth) return <ModalLogin />;
+  if (!isAuth) return <LoginForm />;
+
   return (
     <>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: '#363636',
+            color: '#fff',
+          },
+          success: {
+            duration: 3000,
+            iconTheme: {
+              primary: '#4aed88',
+              secondary: '#363636',
+            },
+          },
+          error: {
+            duration: 3000,
+            iconTheme: {
+              primary: '#ff4b4b',
+              secondary: '#363636',
+            },
+          },
+        }}
+      />
       <Nav title={title} setComponent={setComponent} />
       {component === "movies" ? (
-        <CardPrimaryDashboard />
+
+        <DashboardPage />
+
+
       ) : component === "search" ? (
         <Search setComponent={setComponent} />
       ) : component === "push-iptv" ? (

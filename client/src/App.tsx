@@ -11,20 +11,30 @@ import Dashboard from "./page/Dashboard";
 
 export default function App() {
   return (
-    <Layout>
-      <Wrapper>
-        <BrowserRouter>
-          <ScrollTopTop />
+    <BrowserRouter>
+      <ScrollTopTop />
+
+      <Routes>
+        
+        <Route path="/dashboard" element={<Dashboard />} />search
+      </Routes>
+
+      <Layout>
+        <Wrapper>
+
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/movies" element={<Movies />} />
             <Route path="/movies/:id" element={<Watcher />} />
             <Route path="/iptvs/:id" element={<WatcherIptv />} />
-            <Route path="/dashboard" element={<Dashboard />}/>s
+            <Route path="/dashboard" element={<Dashboard />} />s
             <Route path="*" element={<NotFound />} />
           </Routes>
-        </BrowserRouter>
-      </Wrapper>
-    </Layout>
+
+        </Wrapper>
+      </Layout>
+
+
+    </BrowserRouter>
   );
 }

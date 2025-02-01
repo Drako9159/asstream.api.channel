@@ -14,6 +14,10 @@ export default function Nav({
   const [navIn, setNavIn] = useState<any>(null);
   const logout = useDashboardStore((state) => state.logout);
 
+  function handleLogout() {
+    logout();
+  }
+
   function handleClick() {
     setActiveButton(!activeButton);
 
@@ -33,7 +37,7 @@ export default function Nav({
         </div>
         <nav className={`${styles.navOut} ${navIn}`}>
           <ul>
-            <li onClick={logout}>Logout</li>
+            <li onClick={handleLogout}>Logout</li>
             <li onClick={() => setComponent("movies")}>Movies</li>
 
             <li onClick={() => setComponent("search")}>Push Movie</li>

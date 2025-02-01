@@ -17,3 +17,4 @@ export const useAuthStore = create<AuthStoreState>((set) => ({
   logout: () =>
     set((state) => ({ ...state, token: "", isAuth: false, profile: null })),
 }));
+

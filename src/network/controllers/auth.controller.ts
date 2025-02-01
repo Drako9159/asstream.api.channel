@@ -45,8 +45,8 @@ export async function login(req: Request, res: Response) {
 
     return res
       .cookie("access_token", user.jwt, {
-        httpOnly: true,
-        secure: true, // for cookies with https
+        httpOnly: false,
+        secure: false, // true for cookies with https
         maxAge: 3600000, // 1h duration
         //sameSite: "none"
       })
