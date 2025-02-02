@@ -1,10 +1,20 @@
-interface SidebarProps {
-    setCurrentView: (view: string) => void;
-    currentView: string;
+import { useCurrentView } from "../../../store/current_view";
+
+
+type CurrentView = "categoryList" | "categoryForm" | "contentList" | "contentForm";
+
+interface MenuItem {
+    id: CurrentView;
+    label: string;
+    icon: string;
 }
 
-export default function Sidebar({ setCurrentView, currentView }: SidebarProps) {
-    const menuItems = [
+export default function Sidebar() {
+
+    const setCurrentView = useCurrentView((state) => state.setCurrentView);
+    const currentView = useCurrentView((state) => state.currentView);
+
+    const menuItems: MenuItem[] = [
         { id: 'categoryList', label: 'Listar Categorías', icon: '📋' },
         { id: 'categoryForm', label: 'Crear Categoría', icon: '➕' },
         { id: 'contentList', label: 'Listar Contenido', icon: '📑' },
@@ -21,7 +31,7 @@ export default function Sidebar({ setCurrentView, currentView }: SidebarProps) {
                             <li key={item.id}>
                                 <button
                                     onClick={() => setCurrentView(item.id)}
-                                    className={`w-full text-left px-4 py-2 rounded-md transition-colors duration-200 flex items-center space-x-2
+                                    className={`w-full text-left px-4 py-2 rounded-md transition-colors duration-200 flex items-center space-x-2 cursor-pointer
                     ${currentView === item.id
                                             ? 'bg-blue-600 text-white'
                                             : 'text-gray-700 hover:bg-gray-100'

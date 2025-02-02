@@ -5,6 +5,7 @@ import {
   deleteCategory,
   getAllCategories,
   updateCategory,
+  getCategoryById
 } from "../../controllers/category.controller";
 
 /*
@@ -24,6 +25,8 @@ router.delete("/:id", validateUserAdmin, deleteCategory);
 router.put("/", validateUserAdmin, updateCategory);
 
 router.get("/", getAllCategories)
+
+router.get("/:id", validateUserAdmin,  getCategoryById)
 /*
 router.put("/:id", validateUserAdmin, updateOnePost);
 */

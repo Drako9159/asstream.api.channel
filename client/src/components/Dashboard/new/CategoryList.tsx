@@ -1,19 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { deleteCategory, getAllCategory } from '../../../api/category';
+import { useCategoryStore } from '../../../store/category_store';
+import { useCurrentView } from '../../../store/current_view';
 
+/*
 interface Category {
   _id: string;
   name: string;
   entries: string[];
-}
+}*/
 
 const CategoryList: React.FC = () => {
-  const [categories, setCategories] = useState<Category[]>([
+  /*const [categories, setCategories] = useState<Category[]>([
     { _id: "adf", name: 'Tecnología', entries: ["s", "d"] },
     { _id: "add", name: 'Deportes', entries: ["s", "e"] },
     { _id: "asd", name: 'Cultura', entries: ["s", "d"] },
-  ]);
+  ]);*/
+
+  const setCategories = useCategoryStore((state) => state.setCategoryStore);
+  const categories = useCategoryStore((state) => state.categories);
+  const setCurrentView = useCurrentView((state) => state.setCurrentView);
+
+  const setCategoryUpdating = useCategoryStore((state) => state.setCategoryUpdating);
+  const setIsUpdating = useCategoryStore((state) => state.setIsUpdating);
 
   useEffect(() => {
     async function api() {
@@ -43,6 +53,13 @@ const CategoryList: React.FC = () => {
     };
   }
 
+  const handleUpdate = (category: any) => {
+    setCategoryUpdating(category);
+    setIsUpdating(true);
+    setCurrentView('categoryForm');
+  }
+
+
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <h2 className="text-2xl font-bold text-gray-800 mb-6">Categorías</h2>
@@ -63,14 +80,14 @@ const CategoryList: React.FC = () => {
             ))}
             <div className="mt-4 flex space-x-2">
               <button
-                onClick={() => toast.error('Función no implementada')}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                onClick={() => handleUpdate(category)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer"
               >
                 Editar
               </button>
               <button
                 onClick={() => handleDelete(category._id)}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 cursor-pointer"
               >
                 Eliminar
               </button>

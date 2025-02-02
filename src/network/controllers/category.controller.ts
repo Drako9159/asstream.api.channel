@@ -2,13 +2,18 @@ import mongoose from "mongoose";
 import CategoryService from "../../service/CategoryService";
 import handleError from "../../utils/handleError";
 import { Request, Response } from "express";
-import CategoryModel from "../../domain/model/CategoryModel";
 
 export async function createCategory(req: Request, res: Response) {
   try {
     const { name }: any = req.body;
+
+    const fields = ["name"].filter((field) => !req.body[field]);
+    if (fields.length > 0) {
+      return handleError(res, 400, `require: [${fields.join(", ")}]`);
+    }
+
     const categoryService = new CategoryService();
-    const result = categoryService.createCategory(name as string);
+    const result = await categoryService.createCategory(name as string);
 
     return res.status(201).json({ message: "CATEGORY_CREATED", ...result });
   } catch (error) {
@@ -20,10 +25,18 @@ export async function createCategory(req: Request, res: Response) {
 export async function deleteCategory(req: Request, res: Response) {
   try {
     const id: any = req.params.id;
+
+    const fields = ["id"].filter((field) => !req.params[field]);
+    if (fields.length > 0) {
+      return handleError(res, 400, `require: [${fields.join(", ")}]`);
+    }
+
     const isId = mongoose.Types.ObjectId.isValid(id);
     if (!isId) return handleError(res, 404, "CATEGORY_NOT_FOUND");
-    const categoryModel = await CategoryModel.findByIdAndDelete({ _id: id });
-    if (!categoryModel) return handleError(res, 404, "CATEGORY_NOT_FOUND");
+
+    const categoryService = new CategoryService();
+    const category = await categoryService.deleteCategory(id);
+    if (!category) return handleError(res, 404, "CATEGORY_NOT_FOUND");
 
     return res.status(204).json({ message: "CATEGORY_DELETED" });
   } catch (error) {
@@ -35,14 +48,19 @@ export async function deleteCategory(req: Request, res: Response) {
 export async function updateCategory(req: Request, res: Response) {
   try {
     const { id, name }: any = req.body;
+
+    const fields = ["id", "name"].filter((field) => !req.body[field]);
+    if (fields.length > 0) {
+      return handleError(res, 400, `require: [${fields.join(", ")}]`);
+    }
+
     const isId = mongoose.Types.ObjectId.isValid(id);
     if (!isId) return handleError(res, 404, "CATEGORY_NOT_FOUND");
-    const categoryModel = await CategoryModel.findByIdAndUpdate(
-      { _id: id },
-      { name: name },
-      { new: true }
-    );
-    if (!categoryModel) return handleError(res, 404, "CATEGORY_NOT_FOUND");
+
+    const categoryService = new CategoryService();
+    const category = await categoryService.updateCategory(id, name);
+
+    if (!category) return handleError(res, 404, "CATEGORY_NOT_FOUND");
     return res.status(200).json({ message: "CATEGORY_UPDATED" });
   } catch (error) {
     console.log(error);
@@ -54,10 +72,9 @@ export async function updateCategory(req: Request, res: Response) {
 
 export async function getApiChannel(req: Request, res: Response) {
   try {
-    // Utiliza el método `populate` para obtener las entradas asociadas a cada categoría
-    const categoriesWithEntries = await CategoryModel.find().populate(
-      "entries"
-    );
+   
+    const categoryService = new CategoryService();
+    const categoriesWithEntries = await categoryService.getCategoriesPopulate();
 
     let categories: { [key: string]: any[] } = {};
 
@@ -82,6 +99,7 @@ export async function getApiChannel(req: Request, res: Response) {
         }));
       }
     });
+
     const template = {
       providerName: "Roku Developers",
       language: "en-US",
@@ -98,12 +116,34 @@ export async function getApiChannel(req: Request, res: Response) {
 
 
 
+
 export async function getAllCategories(req: Request, res: Response) {
   try {
-    const categoriesWithEntries = await CategoryModel.find({})
+    const categoryServce = new CategoryService();
+    const categoriesWithEntries = await categoryServce.getCategories();
     return res.status(200).json(categoriesWithEntries);
   } catch (error) {
     console.error("Error al obtener categorías con entradas:", error);
+    return handleError(res);
+  }
+}
+
+export async function getCategoryById(req: Request, res: Response) {
+  try {
+    const id: any = req.params.id;
+    const fields = ["id"].filter((field) => !req.params[field]);
+    if (fields.length > 0) {
+      return handleError(res, 400, `require: [${fields.join(", ")}]`);
+    }
+    const isId = mongoose.Types.ObjectId.isValid(id);
+    if (!isId) return handleError(res, 404, "CATEGORY_NOT_FOUND");
+
+    const categoryService = new CategoryService();
+    const category = await categoryService.getCategoryById(id);
+    if (!category) return handleError(res, 404, "CATEGORY_NOT_FOUND");
+    return res.status(200).json(category);
+  } catch (error) {
+    console.log(error);
     return handleError(res);
   }
 }

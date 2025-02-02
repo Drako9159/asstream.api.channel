@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { getAllCategory } from '../../../api/category';
 import { pushEntry, pushLive, searchRequest } from '../../../api/search';
+import { useCurrentView } from '../../../store/current_view';
+import { useContentStore } from '../../../store/content_store';
+import { updateEntry } from '../../../api/entry';
 //import debounce from 'lodash/debounce';
 
 interface SearchResult {
@@ -12,6 +15,8 @@ interface SearchResult {
 }
 
 const ContentForm: React.FC = () => {
+  const setCurrentView = useCurrentView((state) => state.setCurrentView);
+
   const [isLive, setIsLive] = useState(false);
   const [category, setCategory] = useState('');
   const [title, setTitle] = useState('');
@@ -25,7 +30,6 @@ const ContentForm: React.FC = () => {
   const [quality, setQuality] = useState('HD');
   const [loading, setLoading] = useState(false);
   const [selectedContent, setSelectedContent] = useState<SearchResult | null>(null);
-
   // const categories = ['Tecnología', 'Deportes', 'Cultura'];
   const [categories, setCategories] = useState<[]>([]);
 
@@ -38,33 +42,46 @@ const ContentForm: React.FC = () => {
     try {
       // Simulate API call delay
       await new Promise(resolve => setTimeout(resolve, 500));
-      
       // Mock results - replace with actual API call
-      
-      
       // setSearchResults(mockResults);
-
       const response = await searchRequest(query, "es", `${page}`);
-      console.log(response.data.results)
       setSearchResults(response.data.results);
-
-
     } catch (error) {
       toast.error('Error al buscar contenido');
     } finally {
       setLoading(false);
     }
   };
-/*
-  const debouncedSearch = debounce((query: string, page: number) => {
-    if (query.trim()) {
-      searchContent(query, page);
-    } else {
-      setSearchResults([]);
-    }
-  }, 300);*/
+  /*
+    const debouncedSearch = debounce((query: string, page: number) => {
+      if (query.trim()) {
+        searchContent(query, page);
+      } else {
+        setSearchResults([]);
+      }
+    }, 300);*/
 
-  
+  const isUpdating = useContentStore((state) => state.isUpdating);
+  const contentUpdating = useContentStore((state) => state.contentUpdating);
+
+  const setIsUpdating = useContentStore((state) => state.setIsUpdating);
+
+  useEffect(() => {
+    if (isUpdating) {
+      // setName(categoryUpdating.name);
+      setCategory(contentUpdating.categoryId);
+      setTitle(contentUpdating.title);
+      setDescription(contentUpdating.shortDescription);
+      setPoster(contentUpdating.thumbnail);
+      setBanner(contentUpdating.backdrop);
+      setSource(contentUpdating.content.videos.url);
+      setQuality(contentUpdating.content.videos.quality);
+      setSearchResults(contentUpdating.content.videos.url ? [{ id: 0, title: contentUpdating.title, description: contentUpdating.shortDescription, thumbnail: contentUpdating.thumbnail }] : []);
+      setSearchQuery(contentUpdating.title);
+
+    }
+  }, [isUpdating]);
+
 
   useEffect(() => {
     if (!isLive) {
@@ -81,9 +98,19 @@ const ContentForm: React.FC = () => {
     };
   }, [searchQuery, currentPage, isLive]);
 
+
+  async function handleUpdate(object: any) {
+    const response = await updateEntry(object);
+    if (response.status === 200) {
+      setIsUpdating(false);
+      toast.success('Contenido actualizado correctamente');
+      setCurrentView('contentList');
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (isLive) {
       if (!category || !title || !description || !poster || !banner || !source) {
         toast.error('Por favor complete todos los campos');
@@ -114,6 +141,17 @@ const ContentForm: React.FC = () => {
         quality,
         categoryId: category,
       }
+      if (isUpdating) {
+        const entryContent = {
+          ...contentUpdating,
+          ...selectedContent,
+          source,
+          quality,
+          categoryId: category,
+        }
+        handleUpdate(entryContent);
+        return;
+      }
       const response = await pushEntry(entryContent);
       if (response.status === 201) {
         resetForm();
@@ -121,7 +159,8 @@ const ContentForm: React.FC = () => {
         toast.error('Error al crear contenido');
       }
 
-    }    
+    }
+    setCurrentView('contentList');
     toast.success('Contenido creado correctamente');
     resetForm();
   };
@@ -149,17 +188,17 @@ const ContentForm: React.FC = () => {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Crear Contenido</h2>
-      
-      <div className="mb-6">
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">{ isUpdating ? "Actualizar Contenido" : "Crear Contenido"}</h2>
+
+      <div className="mb-6 ">
         <label className="flex items-center space-x-2">
           <input
             type="checkbox"
             checked={isLive}
             onChange={(e) => setIsLive(e.target.checked)}
-            className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            className="rounded border-gray-300 text-blue-600 cursor-pointer shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
           />
-          <span className="text-sm font-medium text-gray-700">Contenido en vivo</span>
+          <span className="text-sm font-medium text-gray-700 cursor-pointer">Contenido en vivo</span>
         </label>
       </div>
 
@@ -172,7 +211,7 @@ const ContentForm: React.FC = () => {
             id="category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full px-3 py-2 border border-gray-300 cursor-pointer rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">Seleccione una categoría</option>
             {categories.map((cat: any) => (
@@ -325,10 +364,23 @@ const ContentForm: React.FC = () => {
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
+          className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
         >
-          Crear Contenido
+          {isUpdating ? "Actualizar" : "Crear"}
         </button>
+
+        {isUpdating && (
+          <button
+            type="button"
+            onClick={() => {
+              setIsUpdating(false);
+              setCurrentView('contentList');
+            }}
+            className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors duration-200 cursor-pointer"
+          >
+            Cancelar
+          </button>
+        )}
       </form>
     </div>
   );

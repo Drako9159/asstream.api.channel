@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { useDashboardStore } from '../../store/dashboard';
 import { dashboardLoginRequest } from '../../api/auth';
 import { toast } from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 export default function LoginForm() {
     const setToken = useDashboardStore((state) => state.setToken);
+    const navigate = useNavigate();
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -16,10 +18,16 @@ export default function LoginForm() {
 
         if (!email || !password) return alert("Please fill all fields");
         try {
-            const login = await dashboardLoginRequest(email, password).then((res) => {
-                setToken(res.headers.authorization);
-            });
-            console.log(login);
+            const response = await dashboardLoginRequest(email, password);
+            if (response.status === 200) {
+                toast.success('Login successful', { duration: 3000 });
+                setToken(response.headers.authorization);
+                navigate('/dashboard');
+            } else {
+                toast.error('Error detected', { duration: 3000 });
+            }
+            
+
         } catch (err) {
             interface Error {
                 response: {

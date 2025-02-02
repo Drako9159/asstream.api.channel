@@ -1,26 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { deleteEntry, getAllEntry } from '../../../api/entry';
+import { useContentStore } from '../../../store/content_store';
+import { useCurrentView } from '../../../store/current_view';
 
 
 
 
 const ContentList: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [contents, setContents] = useState([
-    {
-      id: 1,
-      title: 'Introducción a React',
-      category: 'Tecnología',
-      description: 'Una guía completa sobre React'
-    },
-    {
-      id: 2,
-      title: 'Mundial 2026',
-      category: 'Deportes',
-      description: 'Análisis de las selecciones clasificadas'
-    },
-  ]);
+
+  const setIsUpdating = useContentStore((state) => state.setIsUpdating);
+  const setContentUpdating = useContentStore((state) => state.setContentUpdating);
+  const setCurrentView = useCurrentView((state) => state.setCurrentView);
+
+  const setContents = useContentStore((state) => state.setContentStore);
+  const contents = useContentStore((state) => state.contents);
 
   useEffect(() => {
     try {
@@ -40,6 +35,12 @@ const ContentList: React.FC = () => {
   const filteredContents = selectedCategory === 'all'
     ? contents
     : contents.filter((content: any) => content.categoryName === selectedCategory);
+
+  const handleUpdate = (content: any) => {
+    setContentUpdating(content);
+    setIsUpdating(true);
+    setCurrentView('contentForm');
+  }
 
   const handleDelete = async (id: string) => {
     try {
@@ -70,7 +71,7 @@ const ContentList: React.FC = () => {
             className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             {categories.map(category => (
-              <option key={category} value={category}>
+              <option key={category._id} value={category}>
                 {category === 'all' ? 'Todas las categorías' : category}
               </option>
             ))}
@@ -82,9 +83,9 @@ const ContentList: React.FC = () => {
         {filteredContents.length === 0 ? (
           <p className="text-gray-500 text-center py-4">No hay contenido disponible para esta categoría</p>
         ) : (
-          filteredContents.map((content: any) => (
+          filteredContents.map((content) => (
             <div
-              key={content.id}
+              key={content._id}
               className="border rounded-lg p-4 bg-gray-50 hover:bg-gray-100 transition-colors"
             >
               <h3 className="text-lg font-semibold">{content.title}</h3>
@@ -92,14 +93,14 @@ const ContentList: React.FC = () => {
               <p className="text-gray-600 mt-1">{content.status}</p>
               <div className="mt-4 flex space-x-2">
                 <button
-                  onClick={() => toast.error('Función no implementada')}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  onClick={() => handleUpdate(content)}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer"
                 >
                   Editar
                 </button>
                 <button
                   onClick={() => handleDelete(content._id)}
-                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                  className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 cursor-pointer"
                 >
                   Eliminar
                 </button>
