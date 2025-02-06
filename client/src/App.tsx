@@ -1,15 +1,13 @@
-import Layout from "./components/extra/Layout";
-import Wrapper from "./components/extra/Wrapper";
+
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import NotFound from "./components/extra/NotFound";
 import ScrollTopTop from "./hooks/useScroll";
-import HomePage from "./page/HomePage";
 import Movies from "./page/Movies";
 import Watcher from "./page/Watcher";
 import WatcherIptv from "./page/WatcherIptv";
 import Dashboard from "./page/Dashboard";
 import { Toaster } from "react-hot-toast";
-
+import NotFoundPage from "./page/NotFoundPage";
+import { Theme } from "@radix-ui/themes";
 export default function App() {
   return (
     <BrowserRouter>
@@ -40,16 +38,16 @@ export default function App() {
       />
 
 
-
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/movies" element={<Movies />} />
-        <Route path="/movies/:id" element={<Watcher />} />
-        <Route path="/iptvs/:id" element={<WatcherIptv />} />
-        <Route path="/dashboard" element={<Dashboard />} />s
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-
+      <Theme>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/movies" element={<Movies />} />
+          <Route path="/movies/:id" element={<Watcher />} />
+          <Route path="/iptvs/:id" element={<WatcherIptv />} />
+          <Route path="/dashboard" element={<Dashboard />} />s
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Theme>
     </BrowserRouter>
   );
 }

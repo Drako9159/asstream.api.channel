@@ -13,13 +13,12 @@ export async function updateEntry(element: any): Promise<AxiosResponse> {
   const entry = {
     id: element._id,
     categoryId: element.categoryIdForm,
-    longDescription: element.longDescription,
-    status: element.statusForm,
+    description: element.description,
+    status: element.isActive,
     thumbnail: element.thumbnail,
     releaseDate: element.releaseData,
     genre: element.genre,
     tag: element.tag,
-    shortDescription: element.shortDescription,
     title: element.title,
     contentDuration: element.content.duration,
     contentVideoType: element.content.videos.videoType,
@@ -29,5 +28,8 @@ export async function updateEntry(element: any): Promise<AxiosResponse> {
     contentDateAdded: element.content.dateAdded,
     backdrop: element.backdrop,
   };
+
   return await axios.put(`/entry`, { ...entry });
 }
+
+

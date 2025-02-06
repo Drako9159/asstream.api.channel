@@ -68,44 +68,127 @@ export async function updateCategory(req: Request, res: Response) {
   }
 }
 
+import { startLiveStreamChecker, getTwitchStreamUrl } from "../../utils/twitchAuto";
+
 
 
 export async function getApiChannel(req: Request, res: Response) {
   try {
-   
+
+    // Lista de canales a monitorear
+    // const channelsToCheck = ["goddessalfa", "jessu", "esquizofrenia_natural", "ibai"];
+    // Iniciar el proceso
+    // startLiveStreamChecker(channelsToCheck);
+
     const categoryService = new CategoryService();
     const categoriesWithEntries = await categoryService.getCategoriesPopulate();
 
     let categories: { [key: string]: any[] } = {};
 
+
     categoriesWithEntries.forEach((e: any) => {
-      if (e.entries.length > 0) {
-        categories[e.name] = e.entries.map((i: any) => ({
-          longDescription: i.longDescription,
-          thumbnail: i.thumbnail,
-          releaseDate: i.releaseDate,
-          genres: [i.genre],
-          tags: [i.tag],
-          id: i._id,
-          shortDescription: i.shortDescription,
-          title: i.title,
-          content: {
-            duration: i.content.duration,
-            videos: [i.content.videos],
-            language: i.content.language,
-            dateAdded: i.content.dateAdded,
-          },
-          backdrop: i.backdrop,
-        }));
+
+      const activeEntries = e.entries.filter((i: any) => i.status === "active");
+
+      if (activeEntries.length > 0) {
+        categories[e.name] = activeEntries.map((i: any) => {
+          return {
+            id: i._id,
+            title: i.title,
+            content: {
+              dateAdded: "2025-01-20T00:34:52Z",
+
+              videos: [i.content.videos],
+              duration: i.content.duration,
+              captions: [
+                {
+                  "url": "https://static-delivery.sr.roku.com/17058b9e-a7dc-477e-afaa-0e10d97ddb99/captions/HDCP_Error_RokuTipsandTricks_20210120T003500_cc_eng.vtt",
+                  "language": "en",
+                  "captionType": "CLOSED_CAPTION"
+                }
+              ],
+              trickPlayFiles: [
+                {
+                  "url": "https://static-delivery.sr.roku.com/17058b9e-a7dc-477e-afaa-0e10d97ddb99/images/17058b9e-a7dc-477e-afaa-0e10d97ddb99-sd.bif",
+                  "quality": "SD"
+                },
+                {
+                  "url": "https://static-delivery.sr.roku.com/17058b9e-a7dc-477e-afaa-0e10d97ddb99/images/17058b9e-a7dc-477e-afaa-0e10d97ddb99-hd.bif",
+                  "quality": "HD"
+                },
+                {
+                  "url": "https://static-delivery.sr.roku.com/17058b9e-a7dc-477e-afaa-0e10d97ddb99/images/17058b9e-a7dc-477e-afaa-0e10d97ddb99-fhd.bif",
+                  "quality": "FHD"
+                }
+              ],
+              language: i.content.language,
+              audioFormats: ["stereo"],
+              audioTracks: [
+                {
+                  language: "en",
+                  label: "English (Original)"
+                }
+              ]
+            },
+            thumbnail: i.thumbnail,
+            backdrop: i.backdrop,
+            shortDescription: i.shortDescription,
+            releaseDate: i.releaseDate,
+            longDescription: i.longDescription,
+            tags: [i.tag, "cable",
+              "content",
+              "error",
+              "fix",
+              "hdcp",
+              "hdmi",
+              "how",
+              "protected",
+              "roku",
+              "roku_101",
+              "screen",
+              "streaming",
+              "to",
+              "troubleshooting"],
+            genres: ["Entretenimiento"],
+            rating: {
+              "rating": "NR",
+              "ratingSource": "USA_PR"
+            },
+            externalIds: [
+              {
+                "id": "Roku101_HDCP",
+                "idType": "PARTNER_ASSET_ID"
+              },
+              {
+                "idType": "PARTNER_TITLE_ID",
+                "id": "Roku101_HDCP"
+              }
+            ]
+
+          }
+        }
+
+        );
       }
     });
 
     const template = {
-      providerName: "Roku Developers",
-      language: "en-US",
-      lastUpdated: "2024-01-15T02:01:00+02:00",
+      providerName: "Roku Developer Account",
+      language: "en",
+      lastUpdated: "2025-11-18T09:04:00Z",
       ...categories,
     };
+
+    // Reorganizar el objeto para que "liveFeeds" aparezca primero
+    /*
+    const orderedCategories: { [key: string]: any[] } = {};
+    if (categories["liveFeeds"]) {
+      orderedCategories["liveFeeds"] = categories["liveFeeds"];
+      delete categories["liveFeeds"];
+    }
+    Object.assign(orderedCategories, categories);
+
+    return res.json(orderedCategories);*/
 
     return res.status(200).json(template);
   } catch (error) {

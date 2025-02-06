@@ -10,14 +10,17 @@ import { updateEntry } from '../../../api/entry';
 interface SearchResult {
   id: number;
   title: string;
-  description: string;
-  thumbnail: string;
+  overview: string;
+  poster_path: string;
+  backdrop_path: string;
+  
 }
 
 const ContentForm: React.FC = () => {
   const setCurrentView = useCurrentView((state) => state.setCurrentView);
 
   const [isLive, setIsLive] = useState(false);
+  const [isActive, setIsActive] = useState(false);
   const [category, setCategory] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -30,6 +33,7 @@ const ContentForm: React.FC = () => {
   const [quality, setQuality] = useState('HD');
   const [loading, setLoading] = useState(false);
   const [selectedContent, setSelectedContent] = useState<SearchResult | null>(null);
+  const [liveFeedsId, setLiveFeedsId] = useState('');
   // const categories = ['Tecnología', 'Deportes', 'Cultura'];
   const [categories, setCategories] = useState<[]>([]);
 
@@ -76,11 +80,13 @@ const ContentForm: React.FC = () => {
       setBanner(contentUpdating.backdrop);
       setSource(contentUpdating.content.videos.url);
       setQuality(contentUpdating.content.videos.quality);
-      setSearchResults(contentUpdating.content.videos.url ? [{ id: 0, title: contentUpdating.title, description: contentUpdating.shortDescription, thumbnail: contentUpdating.thumbnail }] : []);
+      setSearchResults(contentUpdating.content.videos.url ? [{ id: 0, title: contentUpdating.title, overview: contentUpdating.shortDescription, poster_path: contentUpdating.thumbnail, backdrop_path: contentUpdating.backdrop }] : []);
       setSearchQuery(contentUpdating.title);
+      setIsLive(contentUpdating.categoryId === liveFeedsId);
+      setIsActive(contentUpdating.status === "active");
 
     }
-  }, [isUpdating]);
+  }, [isUpdating, liveFeedsId]);
 
 
   useEffect(() => {
@@ -91,6 +97,7 @@ const ContentForm: React.FC = () => {
     async function getAllCategories() {
       const response = await getAllCategory();
       setCategories(response.data);
+      response.data.forEach((cat: any) => { if (cat.name === "liveFeeds") { setLiveFeedsId(cat._id) } });
     }
     getAllCategories();
     return () => {
@@ -105,64 +112,97 @@ const ContentForm: React.FC = () => {
       setIsUpdating(false);
       toast.success('Contenido actualizado correctamente');
       setCurrentView('contentList');
+      resetForm();
+    }
+  }
+
+  async function onSubmitLive() {
+    if (!category || !title || !description || !poster || !banner || !source) {
+      toast.error('Por favor complete todos los campos');
+      return;
+    }
+    const liveContent = {
+      poster_path: poster,
+      backdrop_path: banner,
+      title,
+      description,
+      source,
+      quality,
+      categoryId: category,
+    }
+    if (isUpdating) {
+      const liveContent = {
+        ...contentUpdating,
+        thumbnail: poster,
+        backdrop: banner,
+        title,
+        description,
+        source,
+        quality,
+        categoryIdForm: category,
+        isActive: isActive ? "active" : "inactive",
+      }
+      handleUpdate(liveContent);
+      return;
+    }
+    const response = await pushLive(liveContent);
+    if (response.status === 201) {
+      resetForm();
+      setCurrentView('contentList');
+      resetForm();
+    } else {
+      toast.error('Error al crear contenido');
+    }
+  }
+
+  async function onSubmitContent() {
+    if (!selectedContent || !category || !quality || !source) {
+      toast.error('Por favor complete todos los campos');
+      return;
+    }
+    const imageUri = "https://image.tmdb.org/t/p/w500";
+    const entryContent = {
+      ...selectedContent,
+      source,
+      poster_path: imageUri + selectedContent.poster_path,
+      backdrop_path: imageUri + selectedContent.backdrop_path,
+      description: selectedContent.overview,
+      quality,
+      categoryId: category,
+    }
+    if (isUpdating) {
+      const entryContent = {
+        ...contentUpdating,
+        ...selectedContent,
+        thumbnail: imageUri + selectedContent.poster_path, 
+        backdrop: imageUri + selectedContent.backdrop_path,
+        description: selectedContent.overview,
+        source,
+        quality,
+        categoryIdForm: category,
+        isActive: isActive ? "active" : "inactive",
+      }
+      handleUpdate(entryContent);
+      return;
+    }
+    const response = await pushEntry(entryContent);
+    if (response.status === 201) {
+      toast.success('Contenido creado correctamente');
+      setCurrentView('contentList');
+      resetForm();
+    } else {
+      toast.error('Error al crear contenido');
     }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (isLive) {
-      if (!category || !title || !description || !poster || !banner || !source) {
-        toast.error('Por favor complete todos los campos');
-        return;
-      }
-      const liveContent = {
-        poster_path: poster,
-        backdrop_path: banner,
-        title,
-        overview: description,
-        source,
-        categoryId: category,
-      }
-      const response = await pushLive(liveContent);
-      if (response.status === 201) {
-        resetForm();
-      } else {
-        toast.error('Error al crear contenido');
-      }
+      onSubmitLive()
     } else {
-      if (!selectedContent || !category || !quality || !source) {
-        toast.error('Por favor complete todos los campos');
-        return;
-      }
-      const entryContent = {
-        ...selectedContent,
-        source,
-        quality,
-        categoryId: category,
-      }
-      if (isUpdating) {
-        const entryContent = {
-          ...contentUpdating,
-          ...selectedContent,
-          source,
-          quality,
-          categoryId: category,
-        }
-        handleUpdate(entryContent);
-        return;
-      }
-      const response = await pushEntry(entryContent);
-      if (response.status === 201) {
-        resetForm();
-      } else {
-        toast.error('Error al crear contenido');
-      }
-
+      onSubmitContent()
     }
-    setCurrentView('contentList');
-    toast.success('Contenido creado correctamente');
-    resetForm();
+
   };
 
   const resetForm = () => {
@@ -188,9 +228,9 @@ const ContentForm: React.FC = () => {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">{ isUpdating ? "Actualizar Contenido" : "Crear Contenido"}</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-6">{isUpdating ? "Actualizar Contenido" : "Crear Contenido"}</h2>
 
-      <div className="mb-6 ">
+      <div className="mb-6 flex gap-4">
         <label className="flex items-center space-x-2">
           <input
             type="checkbox"
@@ -200,6 +240,17 @@ const ContentForm: React.FC = () => {
           />
           <span className="text-sm font-medium text-gray-700 cursor-pointer">Contenido en vivo</span>
         </label>
+
+        <label className="flex items-center space-x-2">
+          <input
+            type="checkbox"
+            checked={isActive}
+            onChange={(e) => setIsActive(e.target.checked)}
+            className="rounded border-gray-300 text-blue-600 cursor-pointer shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+          />
+          <span className="text-sm font-medium text-gray-700 cursor-pointer">Activo</span>
+        </label>
+
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">

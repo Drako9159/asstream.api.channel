@@ -8,13 +8,12 @@ export async function pushEntry(req: Request, res: Response) {
   try {
     const {
       categoryId,
-      longDescription,
+      description,
       status,
       thumbnail,
       releaseDate,
       genre,
       tag,
-      shortDescription,
       title,
       contentDuration,
       contentVideoType,
@@ -26,13 +25,13 @@ export async function pushEntry(req: Request, res: Response) {
     }: any = req.body;
 
     console.log({
-      longDescription: longDescription,
+      longDescription: description,
       status: status,
       thumbnail: thumbnail,
       releaseDate: releaseDate,
       genre: genre,
       tag: tag,
-      shortDescription: shortDescription,
+      shortDescription: description,
       title: title,
       content: {
         duration: contentDuration,
@@ -48,13 +47,13 @@ export async function pushEntry(req: Request, res: Response) {
     });
 
     const newEntry = new EntryModel({
-      longDescription: longDescription,
+      longDescription: description,
       status: status,
       thumbnail: thumbnail,
       releaseDate: releaseDate,
       genre: genre,
       tag: tag,
-      shortDescription: shortDescription,
+      shortDescription: description,
       title: title,
       content: {
         duration: contentDuration,
@@ -114,13 +113,12 @@ export async function updateEntry(req: Request, res: Response) {
     const {
       id,
       categoryId,
-      longDescription,
+      description,
       status,
       thumbnail,
       releaseDate,
       genre,
       tag,
-      shortDescription,
       title,
       contentDuration,
       contentVideoType,
@@ -132,13 +130,13 @@ export async function updateEntry(req: Request, res: Response) {
     }: any = req.body;
 
     const updatedEntry = {
-      longDescription,
+      longDescription: description,
       status,
       thumbnail,
       releaseDate,
       genre,
       tag,
-      shortDescription,
+      shortDescription: description,
       title,
       content: {
         duration: contentDuration,

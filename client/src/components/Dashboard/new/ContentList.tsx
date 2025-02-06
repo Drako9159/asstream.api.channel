@@ -58,7 +58,7 @@ const ContentList: React.FC = () => {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <div className="flex justify-between items-center mb-6">
+      <div className="justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800">Contenido</h2>
         <div className="flex items-center space-x-2">
           <label htmlFor="categoryFilter" className="text-sm font-medium text-gray-700">
@@ -79,7 +79,7 @@ const ContentList: React.FC = () => {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className=" gap-4 space-y-4">
         {filteredContents.length === 0 ? (
           <p className="text-gray-500 text-center py-4">No hay contenido disponible para esta categoría</p>
         ) : (
@@ -88,6 +88,21 @@ const ContentList: React.FC = () => {
               key={content._id}
               className="border rounded-lg p-4 bg-gray-50 hover:bg-gray-100 transition-colors"
             >
+              <div className='flex space-x-4'>
+
+                <img
+                  src={content.thumbnail}
+                  alt={content.title}
+                  className=" h-20 object-cover rounded-lg"
+                />
+
+                <img
+                  src={content.backdrop}
+                  alt={content.title}
+                  className=" h-20 object-cover rounded-lg"
+                />
+
+              </div>
               <h3 className="text-lg font-semibold">{content.title}</h3>
               <p className="text-sm text-blue-600 mt-1">Categoría: {content.categoryName}</p>
               <p className="text-gray-600 mt-1">{content.status}</p>
