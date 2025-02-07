@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import CategoryService from "../../service/CategoryService";
 import handleError from "../../utils/handleError";
-import { Request, Response } from "express";
+import e, { Request, Response } from "express";
 
 export async function createCategory(req: Request, res: Response) {
   try {
@@ -68,127 +68,104 @@ export async function updateCategory(req: Request, res: Response) {
   }
 }
 
-import { startLiveStreamChecker, getTwitchStreamUrl } from "../../utils/twitchAuto";
+import { getTwitchStreamUrl } from "../../utils/twitchAuto";
+import { apiCategory, ICategory } from "../../utils/apiCategory";
+
+
 
 
 
 export async function getApiChannel(req: Request, res: Response) {
   try {
-
-    // Lista de canales a monitorear
-    // const channelsToCheck = ["goddessalfa", "jessu", "esquizofrenia_natural", "ibai"];
-    // Iniciar el proceso
-    // startLiveStreamChecker(channelsToCheck);
-
     const categoryService = new CategoryService();
     const categoriesWithEntries = await categoryService.getCategoriesPopulate();
 
     let categories: { [key: string]: any[] } = {};
 
+    for (const e of categoriesWithEntries) {
+      let activeEntries = e.entries.filter((i: any) => i.status === "active");
 
-    categoriesWithEntries.forEach((e: any) => {
+      if (e.name.toLowerCase() === "twitch") {
+        let twitchEntries = [];
 
-      const activeEntries = e.entries.filter((i: any) => i.status === "active");
+        for (const i of activeEntries) {
+          const streamData = await getTwitchStreamUrl(i.title);
 
-      if (activeEntries.length > 0) {
-        categories[e.name] = activeEntries.map((i: any) => {
-          return {
-            id: i._id,
-            title: i.title,
-            content: {
-              dateAdded: "2025-01-20T00:34:52Z",
-
-              videos: [i.content.videos],
-              duration: i.content.duration,
-              captions: [
-                {
-                  "url": "https://static-delivery.sr.roku.com/17058b9e-a7dc-477e-afaa-0e10d97ddb99/captions/HDCP_Error_RokuTipsandTricks_20210120T003500_cc_eng.vtt",
-                  "language": "en",
-                  "captionType": "CLOSED_CAPTION"
-                }
-              ],
-              trickPlayFiles: [
-                {
-                  "url": "https://static-delivery.sr.roku.com/17058b9e-a7dc-477e-afaa-0e10d97ddb99/images/17058b9e-a7dc-477e-afaa-0e10d97ddb99-sd.bif",
-                  "quality": "SD"
-                },
-                {
-                  "url": "https://static-delivery.sr.roku.com/17058b9e-a7dc-477e-afaa-0e10d97ddb99/images/17058b9e-a7dc-477e-afaa-0e10d97ddb99-hd.bif",
-                  "quality": "HD"
-                },
-                {
-                  "url": "https://static-delivery.sr.roku.com/17058b9e-a7dc-477e-afaa-0e10d97ddb99/images/17058b9e-a7dc-477e-afaa-0e10d97ddb99-fhd.bif",
-                  "quality": "FHD"
-                }
-              ],
-              language: i.content.language,
-              audioFormats: ["stereo"],
-              audioTracks: [
-                {
-                  language: "en",
-                  label: "English (Original)"
-                }
-              ]
-            },
-            thumbnail: i.thumbnail,
-            backdrop: i.backdrop,
-            shortDescription: i.shortDescription,
-            releaseDate: i.releaseDate,
-            longDescription: i.longDescription,
-            tags: [i.tag, "cable",
-              "content",
-              "error",
-              "fix",
-              "hdcp",
-              "hdmi",
-              "how",
-              "protected",
-              "roku",
-              "roku_101",
-              "screen",
-              "streaming",
-              "to",
-              "troubleshooting"],
-            genres: ["Entretenimiento"],
-            rating: {
-              "rating": "NR",
-              "ratingSource": "USA_PR"
-            },
-            externalIds: [
-              {
-                "id": "Roku101_HDCP",
-                "idType": "PARTNER_ASSET_ID"
+          if (streamData && streamData.link) {
+            const CategoryEntry: ICategory = {
+              _id: i._id,
+              title: i.title,
+              videos: {
+                videoType: i.content.videos.videoType,
+                url: streamData.link, // Se usa el link de la función
+                quality: i.content.videos.quality
               },
-              {
-                "idType": "PARTNER_TITLE_ID",
-                "id": "Roku101_HDCP"
-              }
-            ]
+              duration: i.content.duration,
+              language: i.content.language,
+              thumbnail: i.thumbnail,
+              backdrop: i.backdrop,
+              shortDescription: i.shortDescription,
+              releaseDate: i.releaseDate,
+              longDescription: i.longDescription,
+              tag: i.tag
+            };
 
+            twitchEntries.push(apiCategory(CategoryEntry));
           }
         }
 
-        );
+        if (twitchEntries.length > 0) {
+          categories[e.name] = twitchEntries;
+        }
+      } else {
+        if (activeEntries.length > 0) {
+          categories[e.name] = activeEntries.map((i: any) => {
+            const CategoryEntry: ICategory = {
+              _id: i._id,
+              title: i.title,
+              videos: {
+                videoType: i.content.videos.videoType,
+                url: i.content.videos.url,
+                quality: i.content.videos.quality
+              },
+              duration: i.content.duration,
+              language: i.content.language,
+              thumbnail: i.thumbnail,
+              backdrop: i.backdrop,
+              shortDescription: i.shortDescription,
+              releaseDate: i.releaseDate,
+              longDescription: i.longDescription,
+              tag: i.tag
+            };
+            return apiCategory(CategoryEntry);
+          });
+        }
       }
-    });
+    }
+
+    // Order categories by first to last: liveFeeds, movies, twitch
+    const categoryOrder = ["liveFeeds", "movies", "twitch"]
+
+    const orderedCategories = Object.entries(categories).sort(([a], [b]) => {
+      const indexA = categoryOrder.indexOf(a);
+      const indexB = categoryOrder.indexOf(b);
+
+      if(indexA === -1 && indexB === -1) return 0;
+      if(indexA === -1) return 1;
+      if(indexB === -1) return -1;
+
+      return indexA - indexB;
+    })
+
+    const sortedCategories = Object.fromEntries(orderedCategories);
+
 
     const template = {
       providerName: "Roku Developer Account",
-      language: "en",
       lastUpdated: "2025-11-18T09:04:00Z",
-      ...categories,
+      language: "en",
+      ...sortedCategories,
     };
-
-    // Reorganizar el objeto para que "liveFeeds" aparezca primero
-    /*
-    const orderedCategories: { [key: string]: any[] } = {};
-    if (categories["liveFeeds"]) {
-      orderedCategories["liveFeeds"] = categories["liveFeeds"];
-      delete categories["liveFeeds"];
-    }
-    Object.assign(orderedCategories, categories);
-
-    return res.json(orderedCategories);*/
 
     return res.status(200).json(template);
   } catch (error) {
@@ -197,6 +174,86 @@ export async function getApiChannel(req: Request, res: Response) {
   }
 }
 
+
+
+
+export async function getApiChannelOld(req: Request, res: Response) {
+  try {
+
+    const categoryService = new CategoryService();
+    const categoriesWithEntries = await categoryService.getCategoriesPopulate();
+
+    let categories: { [key: string]: any[] } = {};
+
+    categoriesWithEntries.forEach((e: any) => {
+      let activeEntries = e.entries.filter((i: any) => i.status === "active");
+      if (activeEntries.length > 0) {
+        categories[e.name] = activeEntries.map((i: any) => {
+          const CategoryEntry: ICategory = {
+            _id: i._id,
+            title: i.title,
+            videos: {
+              videoType: i.content.videos.videoType,
+              url: i.content.videos.url,
+              quality: i.content.videos.quality
+            },
+            duration: i.content.duration,
+            language: i.content.language,
+            thumbnail: i.thumbnail,
+            backdrop: i.backdrop,
+            shortDescription: i.shortDescription,
+            releaseDate: i.releaseDate,
+            longDescription: i.longDescription,
+            tag: i.tag
+          }
+          return apiCategory(CategoryEntry)
+        }
+        );
+      }
+    });
+
+    const template = {
+      providerName: "Roku Developer Account",
+      lastUpdated: "2025-11-18T09:04:00Z",
+      language: "en",
+      ...categories,
+    };
+
+    return res.status(200).json(template);
+  } catch (error) {
+    console.error("Error al obtener categorías con entradas:", error);
+    return handleError(res);
+  }
+}
+
+
+// Reorganizar el objeto para que "liveFeeds" aparezca primero
+/*
+const orderedCategories: { [key: string]: any[] } = {};
+if (categories["liveFeeds"]) {
+  orderedCategories["liveFeeds"] = categories["liveFeeds"];
+  delete categories["liveFeeds"];
+}
+Object.assign(orderedCategories, categories);
+
+return res.json(orderedCategories);*/
+/*
+    const applyTwitchUrl: { [key: string]: any[] } = {};
+    if (categories["twitch"]) {
+      const twitchChannels = categories["twitch"];
+      const promises = twitchChannels.map(async (channel: any) => {
+        const twitchChannel = await getTwitchStreamUrl(channel.title);
+        if (twitchChannel) {
+          channel.content.videos[0].url = twitchChannel.link;
+          applyTwitchUrl[channel.title] = channel;
+        }
+      });
+      await Promise.all(promises);
+    }*/
+
+// Object.assign(applyTwitchUrl, categories);
+
+//return res.json(applyTwitchUrl);
 
 
 

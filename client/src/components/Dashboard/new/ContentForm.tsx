@@ -97,7 +97,7 @@ const ContentForm: React.FC = () => {
     async function getAllCategories() {
       const response = await getAllCategory();
       setCategories(response.data);
-      response.data.forEach((cat: any) => { if (cat.name === "liveFeeds") { setLiveFeedsId(cat._id) } });
+      response.data.forEach((cat: any) => { if (cat.name === "liveFeeds" || cat.name === "twitch") { setLiveFeedsId(cat._id) } });
     }
     getAllCategories();
     return () => {

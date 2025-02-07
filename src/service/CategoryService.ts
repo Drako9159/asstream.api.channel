@@ -30,7 +30,7 @@ class CategoryService {
     return category;
   }
 
-  async getCategoiesByEntries() {
+  async getCategoriesByEntries() {
     const categories = await CategoryModel.aggregate([
       {
         $lookup: {

@@ -12,6 +12,7 @@ interface Content {
 }
 
 export default interface IEntry {
+  _id: string;
   longDescription: string;
   status: string;
   thumbnail: string;
