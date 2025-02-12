@@ -1,0 +1,52 @@
+# Stage 1: Build the backend
+FROM node:20-alpine3.18 AS backend-builder
+WORKDIR /app
+COPY package.json package-lock.json /app/
+RUN npm install
+COPY . /app
+RUN npm run build
+
+# Stage 2: Build the client
+FROM node:20-alpine3.18 AS client-builder
+WORKDIR /app/client
+COPY client/package.json client/package-lock.json /app/client/
+RUN npm install
+COPY client /app/client
+RUN npm run build
+
+# Stage 3: Create the production image
+FROM node:20-alpine3.18
+WORKDIR /app
+COPY --from=backend-builder /app/dist /app/dist
+COPY --from=client-builder /app/client/dist /app/client/dist
+
+# Install only production dependencies
+COPY package.json package-lock.json /app/
+RUN npm install
+
+# Copy Storage
+# COPY storage /app/storage
+# COPY credentials.json /app/
+
+# Set the environment variable backend
+ENV PORT='3000'
+ENV MONGODB_URI=''
+ENV JWT_SECRET=''
+ENV CLIENT_URL_FLY=''
+ENV CLIENT_URL_SECURE=''
+ENV CLIENT_URL_VERCEL=''
+
+ENV API_TOKEN=''
+ENV TB_MOVIES_URL=''
+
+# Set the environment variables frontend
+ENV VITE_URL_DOMAIN=''
+ENV VITE_URL_BACKEND=''
+ENV VITE_USER_EMAIL=''
+ENV VITE_USER_PASSWORD=''
+
+# Expose the desired port
+EXPOSE 3000
+
+# Start the server
+CMD ["npm", "run", "start"]
