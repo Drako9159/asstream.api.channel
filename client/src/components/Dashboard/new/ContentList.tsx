@@ -21,6 +21,7 @@ const ContentList: React.FC = () => {
     try {
       async function api() {
         const response = await getAllEntry();
+        
         setContents(response.data);
       }
       api();
@@ -79,7 +80,7 @@ const ContentList: React.FC = () => {
         </div>
       </div>
 
-      <div className=" gap-4 space-y-4">
+      <div className="flex flex-wrap justify-center gap-4 space-y-4">
         {filteredContents.length === 0 ? (
           <p className="text-gray-500 text-center py-4">No hay contenido disponible para esta categoría</p>
         ) : (

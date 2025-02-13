@@ -13,7 +13,7 @@ interface SearchResult {
   overview: string;
   poster_path: string;
   backdrop_path: string;
-  
+
 }
 
 const ContentForm: React.FC = () => {
@@ -33,7 +33,7 @@ const ContentForm: React.FC = () => {
   const [quality, setQuality] = useState('HD');
   const [loading, setLoading] = useState(false);
   const [selectedContent, setSelectedContent] = useState<SearchResult | null>(null);
-  const [liveFeedsId, setLiveFeedsId] = useState('');
+  // const [liveFeedsId, setLiveFeedsId] = useState('');
   // const categories = ['Tecnología', 'Deportes', 'Cultura'];
   const [categories, setCategories] = useState<[]>([]);
 
@@ -82,11 +82,13 @@ const ContentForm: React.FC = () => {
       setQuality(contentUpdating.content.videos.quality);
       setSearchResults(contentUpdating.content.videos.url ? [{ id: 0, title: contentUpdating.title, overview: contentUpdating.shortDescription, poster_path: contentUpdating.thumbnail, backdrop_path: contentUpdating.backdrop }] : []);
       setSearchQuery(contentUpdating.title);
-      setIsLive(contentUpdating.categoryId === liveFeedsId);
+      // setIsLive(contentUpdating.categoryId === liveFeedsId);
       setIsActive(contentUpdating.status === "active");
-
+      // setLiveFeedsId(contentUpdating.categoryId);
+      setIsLive(contentUpdating.categoryName === "liveFeeds" || contentUpdating.categoryName === "tvSpecials");
+      
     }
-  }, [isUpdating, liveFeedsId]);
+  }, [isUpdating]);
 
 
   useEffect(() => {
@@ -97,7 +99,8 @@ const ContentForm: React.FC = () => {
     async function getAllCategories() {
       const response = await getAllCategory();
       setCategories(response.data);
-      response.data.forEach((cat: any) => { if (cat.name === "liveFeeds" || cat.name === "twitch") { setLiveFeedsId(cat._id) } });
+      // response.data.forEach((cat: any) => { if (cat._id === contentUpdating.categoryId && cat.name === "liveFeeds" || cat.name === "tvSpecials") { setIsLive(true) } });
+      
     }
     getAllCategories();
     return () => {
@@ -147,7 +150,6 @@ const ContentForm: React.FC = () => {
     }
     const response = await pushLive(liveContent);
     if (response.status === 201) {
-      resetForm();
       setCurrentView('contentList');
       resetForm();
     } else {
@@ -174,7 +176,7 @@ const ContentForm: React.FC = () => {
       const entryContent = {
         ...contentUpdating,
         ...selectedContent,
-        thumbnail: imageUri + selectedContent.poster_path, 
+        thumbnail: imageUri + selectedContent.poster_path,
         backdrop: imageUri + selectedContent.backdrop_path,
         description: selectedContent.overview,
         source,

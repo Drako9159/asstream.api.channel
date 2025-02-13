@@ -10,6 +10,7 @@ export default function Dashboard() {
 
   useDashboardStore((state) => state.checkAuth());
   const isAuth = useDashboardStore((state) => state.isAuth);
+
   /*
   const [title, setTitle] = useState("Dashboard");
   const [component, setComponent] = useState("movies");

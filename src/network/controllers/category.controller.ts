@@ -1,7 +1,11 @@
 import mongoose from "mongoose";
 import CategoryService from "../../service/CategoryService";
 import handleError from "../../utils/handleError";
-import e, { Request, Response } from "express";
+import { Request, Response } from "express";
+import { getTwitchStreamUrl } from "../../utils/twitchAuto";
+import { apiCategory, ICategory } from "../../utils/apiCategory";
+
+
 
 export async function createCategory(req: Request, res: Response) {
   try {
@@ -68,14 +72,19 @@ export async function updateCategory(req: Request, res: Response) {
   }
 }
 
-import { getTwitchStreamUrl } from "../../utils/twitchAuto";
-import { apiCategory, ICategory } from "../../utils/apiCategory";
+
+import { isHLSAvailable } from "../../utils/isHLSAvailable";
+
+import NodeCache from "node-cache";
+
+// const cache = new NodeCache({ stdTTL: 60 * 60 * 24 * 7, checkperiod: 60 * 60 }); // 1 week
+// const cache = new NodeCache({ stdTTL: 60 * 60 * 24, checkperiod: 60 * 60 }); // 1 day
+// const cache = new NodeCache({ stdTTL: 600, checkperiod: 120 }); // 10 minutes
+const cache = new NodeCache({ stdTTL: 60, checkperiod: 30 }); // 1 minute
 
 
-
-
-
-export async function getApiChannel(req: Request, res: Response) {
+// Versiion with validate HLS Twitch or tvSpecials
+export async function getApiChannelOlder(req: Request, res: Response) {
   try {
     const categoryService = new CategoryService();
     const categoriesWithEntries = await categoryService.getCategoriesPopulate();
@@ -85,7 +94,7 @@ export async function getApiChannel(req: Request, res: Response) {
     for (const e of categoriesWithEntries) {
       let activeEntries = e.entries.filter((i: any) => i.status === "active");
 
-      if (e.name.toLowerCase() === "twitch") {
+      if (e.name === "tvSpecials") {
         let twitchEntries = [];
 
         for (const i of activeEntries) {
@@ -119,6 +128,7 @@ export async function getApiChannel(req: Request, res: Response) {
         }
       } else {
         if (activeEntries.length > 0) {
+
           categories[e.name] = activeEntries.map((i: any) => {
             const CategoryEntry: ICategory = {
               _id: i._id,
@@ -139,20 +149,21 @@ export async function getApiChannel(req: Request, res: Response) {
             };
             return apiCategory(CategoryEntry);
           });
+          
         }
       }
     }
 
     // Order categories by first to last: liveFeeds, movies, twitch
-    const categoryOrder = ["liveFeeds", "movies", "twitch"]
+    const categoryOrder = ["liveFeeds", "movies", "tvSpecials"]
 
     const orderedCategories = Object.entries(categories).sort(([a], [b]) => {
       const indexA = categoryOrder.indexOf(a);
       const indexB = categoryOrder.indexOf(b);
 
-      if(indexA === -1 && indexB === -1) return 0;
-      if(indexA === -1) return 1;
-      if(indexB === -1) return -1;
+      if (indexA === -1 && indexB === -1) return 0;
+      if (indexA === -1) return 1;
+      if (indexB === -1) return -1;
 
       return indexA - indexB;
     })
@@ -174,9 +185,118 @@ export async function getApiChannel(req: Request, res: Response) {
   }
 }
 
+// New version with cache, Experimental
+export async function getApiChannel(req: Request, res: Response) {
+  try {
+    // Verificamos si la respuesta ya está en caché
+    const cachedResponse = cache.get("api_channels");
+    if (cachedResponse) {
+      return res.status(200).json(cachedResponse);
+    }
+
+    const categoryService = new CategoryService();
+    const categoriesWithEntries = await categoryService.getCategoriesPopulate();
+
+    let categories: { [key: string]: any[] } = {};
+
+    for (const e of categoriesWithEntries) {
+      let activeEntries = e.entries.filter((i: any) => i.status === "active");
+      let validEntries = [];
+
+      if (e.name === "tvSpecials") {
+        for (const i of activeEntries) {
+          const streamData = await getTwitchStreamUrl(i.title);
+          if (streamData && streamData.link) {
+
+            const CategoryEntry: ICategory = {
+              _id: i._id,
+              title: i.title,
+              videos: {
+                videoType: i.content.videos.videoType,
+                url: streamData.link, // Se usa el link de la función
+                quality: i.content.videos.quality
+              },
+              duration: i.content.duration,
+              language: i.content.language,
+              thumbnail: i.thumbnail,
+              backdrop: i.backdrop,
+              shortDescription: i.shortDescription,
+              releaseDate: i.releaseDate,
+              longDescription: i.longDescription,
+              tag: i.tag
+            };
+            validEntries.push(apiCategory(CategoryEntry));
+          }
+        }
+      } else {
+        const validatedEntries = await Promise.all(
+          activeEntries.map(async (i: any) => {
+            if (await isHLSAvailable(i.content.videos.url)) {
+              const CategoryEntry: ICategory = {
+              _id: i._id,
+              title: i.title,
+              videos: {
+                videoType: i.content.videos.videoType,
+                url: i.content.videos.url,
+                quality: i.content.videos.quality
+              },
+              duration: i.content.duration,
+              language: i.content.language,
+              thumbnail: i.thumbnail,
+              backdrop: i.backdrop,
+              shortDescription: i.shortDescription,
+              releaseDate: i.releaseDate,
+              longDescription: i.longDescription,
+              tag: i.tag
+            };
+            return apiCategory(CategoryEntry);
+            }
+            return null;
+          })
+        );
+        validEntries = validatedEntries.filter(Boolean);
+      }
+
+      if (validEntries.length > 0) {
+        categories[e.name] = validEntries;
+      }
+    }
+
+    // Ordenar categorías según prioridad y eliminar vacías
+    const categoryOrder = ["liveFeeds", "movies", "tvSpecials"];
+    const sortedCategories = Object.fromEntries(
+      Object.entries(categories)
+        .sort(([a], [b]) => {
+          const indexA = categoryOrder.indexOf(a);
+          const indexB = categoryOrder.indexOf(b);
+          return (indexA === -1 ? 1 : indexA) - (indexB === -1 ? 1 : indexB);
+        })
+    );
+
+    // Plantilla de respuesta
+    const responseTemplate = {
+      providerName: "Roku Developer Account",
+      lastUpdated: new Date().toISOString(),
+      language: "en",
+      ...sortedCategories,
+    };
+
+    // Guardar en caché
+    cache.set("api_channels", responseTemplate);
+
+    return res.status(200).json(responseTemplate);
+  } catch (error) {
+    console.error("Error al obtener categorías con entradas:", error);
+    return handleError(res);
+  }
+}
 
 
 
+
+
+
+// Version without validate HLS Twitch or tvSpecials // Deprecated
 export async function getApiChannelOld(req: Request, res: Response) {
   try {
 
