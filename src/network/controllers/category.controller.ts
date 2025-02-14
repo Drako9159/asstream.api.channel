@@ -272,23 +272,23 @@ export async function getApiChannelOld3(req: Request, res: Response) {
           activeEntries.map(async (i: any) => {
             if (await checkHLSAvailability(i.content.videos.url)) {
               const CategoryEntry: ICategory = {
-              _id: i._id,
-              title: i.title,
-              videos: {
-                videoType: i.content.videos.videoType,
-                url: i.content.videos.url,
-                quality: i.content.videos.quality
-              },
-              duration: i.content.duration,
-              language: i.content.language,
-              thumbnail: i.thumbnail,
-              backdrop: i.backdrop,
-              shortDescription: i.shortDescription,
-              releaseDate: i.releaseDate,
-              longDescription: i.longDescription,
-              tag: i.tag
-            };
-            return apiCategory(CategoryEntry);
+                _id: i._id,
+                title: i.title,
+                videos: {
+                  videoType: i.content.videos.videoType,
+                  url: i.content.videos.url,
+                  quality: i.content.videos.quality
+                },
+                duration: i.content.duration,
+                language: i.content.language,
+                thumbnail: i.thumbnail,
+                backdrop: i.backdrop,
+                shortDescription: i.shortDescription,
+                releaseDate: i.releaseDate,
+                longDescription: i.longDescription,
+                tag: i.tag
+              };
+              return apiCategory(CategoryEntry);
             }
             return null;
           })
@@ -397,7 +397,7 @@ export async function getApiChannelOld2(req: Request, res: Response) {
             };
             return apiCategory(CategoryEntry);
           });
-          
+
         }
       }
     }
