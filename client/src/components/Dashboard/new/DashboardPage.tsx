@@ -53,7 +53,7 @@ export default function DashboardPage() {
           ></div>
         </div>
       )}
-      <main className="flex-1 flex-wrap overflow-y-auto p-6 bg-gray-100 min-w-[500px] mt-17">
+      <main className="flex-1 flex-wrap overflow-y-auto p-6 bg-gray-100  mt-17">
         
           {renderContent()}
      
