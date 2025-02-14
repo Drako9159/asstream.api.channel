@@ -487,36 +487,6 @@ export async function getApiChannelOld1(req: Request, res: Response) {
 }
 
 
-// Reorganizar el objeto para que "liveFeeds" aparezca primero
-/*
-const orderedCategories: { [key: string]: any[] } = {};
-if (categories["liveFeeds"]) {
-  orderedCategories["liveFeeds"] = categories["liveFeeds"];
-  delete categories["liveFeeds"];
-}
-Object.assign(orderedCategories, categories);
-
-return res.json(orderedCategories);*/
-/*
-    const applyTwitchUrl: { [key: string]: any[] } = {};
-    if (categories["twitch"]) {
-      const twitchChannels = categories["twitch"];
-      const promises = twitchChannels.map(async (channel: any) => {
-        const twitchChannel = await getTwitchStreamUrl(channel.title);
-        if (twitchChannel) {
-          channel.content.videos[0].url = twitchChannel.link;
-          applyTwitchUrl[channel.title] = channel;
-        }
-      });
-      await Promise.all(promises);
-    }*/
-
-// Object.assign(applyTwitchUrl, categories);
-
-//return res.json(applyTwitchUrl);
-
-
-
 export async function getAllCategories(req: Request, res: Response) {
   try {
     const categoryServce = new CategoryService();
