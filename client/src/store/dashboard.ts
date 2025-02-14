@@ -22,6 +22,7 @@ export const useDashboardStore = create<DashboardStoreState>((set) => ({
   },
   checkAuth: () => {
     const token = Cookies.get("access_token");
+   
     if (token) {
       set((state) => ({ ...state, token, isAuth: true }));
     }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { deleteEntry, getAllEntry } from '../../../api/entry';
 import { useContentStore } from '../../../store/content_store';
@@ -8,7 +8,10 @@ import { useCurrentView } from '../../../store/current_view';
 
 
 const ContentList: React.FC = () => {
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  // const [selectedCategory, setSelectedCategory] = useState('all');
+
+  const selectedCategory = useContentStore((state) => state.selectedCategory);
+  const setSelectedCategory = useContentStore((state) => state.setSelectedCategory);
 
   const setIsUpdating = useContentStore((state) => state.setIsUpdating);
   const setContentUpdating = useContentStore((state) => state.setContentUpdating);

@@ -3,6 +3,7 @@ import { toast } from 'react-hot-toast';
 import { deleteCategory, getAllCategory } from '../../../api/category';
 import { useCategoryStore } from '../../../store/category_store';
 import { useCurrentView } from '../../../store/current_view';
+import { useDashboardStore } from '../../../store/dashboard';
 
 /*
 interface Category {
@@ -25,14 +26,21 @@ const CategoryList: React.FC = () => {
   const setCategoryUpdating = useCategoryStore((state) => state.setCategoryUpdating);
   const setIsUpdating = useCategoryStore((state) => state.setIsUpdating);
 
+  const logout = useDashboardStore((state) => state.logout);
+
   useEffect(() => {
+
     async function api() {
       try {
         const resposne = await getAllCategory();
         setCategories(resposne.data);
+
       } catch (error) {
+
         console.log(error);
         toast.error('Error al cargar las categorías');
+        logout();
+
       }
     }
     api();

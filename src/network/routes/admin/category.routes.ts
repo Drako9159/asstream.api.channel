@@ -24,7 +24,7 @@ router.delete("/:id", validateUserAdmin, deleteCategory);
 
 router.put("/", validateUserAdmin, updateCategory);
 
-router.get("/", getAllCategories)
+router.get("/", validateUserAdmin,  getAllCategories)
 
 router.get("/:id", validateUserAdmin,  getCategoryById)
 /*

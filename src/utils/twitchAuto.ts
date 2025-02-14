@@ -17,7 +17,7 @@ export async function getTwitchStreamUrl(channelName: string): Promise<LiveChann
             return { name: channelName, link: streams[0].url };
         }
     } catch (error) {
-        console.error(`Error in stream name: ${channelName}`, error);
+        // console.error(`Error in stream name: ${channelName}`, error);
         return null;
     }
     return null;
