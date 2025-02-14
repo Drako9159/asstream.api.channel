@@ -83,9 +83,6 @@ import NodeCache from "node-cache";
 // const cache = new NodeCache({ stdTTL: 60, checkperiod: 30 }); // 1 minute
 
 
-
-
-
 const CACHE_SHORT = 60; // 1 minuto
 const CACHE_MEDIUM = 600; // 10 minutos
 const CACHE_LONG = 86400; // 1 día
@@ -140,7 +137,7 @@ export async function getApiChannel(req: Request, res: Response) {
           ));
         validEntries = twitchEntries.filter(Boolean);
 
-      } else if (e.name === "liveFeeds") {
+      } else if (e.name === "liveFeeds" || e.name === "movies") {
         const liveFeedsEntries = await Promise.all(
           activeEntries.map(async (i: any) => {
             if (await checkHLSAvailability(i.content.videos.url)) {
