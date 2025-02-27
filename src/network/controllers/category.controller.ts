@@ -89,9 +89,11 @@ const CACHE_LONG = 86400; // 1 día
 
 const cache = new NodeCache();
 
+import { getUrlVideo } from "../../utils/yt-extractor";
 
 // New version with cache, Promise All and validate Only liveFeeds, Experimental
 export async function getApiChannel(req: Request, res: Response) {
+  // getUrlVideo("https://ok.ru/video/7852955667039").then(url => console.log("URL: ", url)).catch(err => console.log("Error: ", err))
   try {
     // Verificamos si la respuesta ya está en caché
     const cachedResponse = cache.get("api_channels");
@@ -137,7 +139,7 @@ export async function getApiChannel(req: Request, res: Response) {
           ));
         validEntries = twitchEntries.filter(Boolean);
 
-      } else if (e.name === "liveFeeds" || e.name === "movies") {
+      } else if (e.name === "liveFeeds") {
         const liveFeedsEntries = await Promise.all(
           activeEntries.map(async (i: any) => {
             if (await checkHLSAvailability(i.content.videos.url)) {
@@ -147,6 +149,35 @@ export async function getApiChannel(req: Request, res: Response) {
                 videos: {
                   videoType: i.content.videos.videoType,
                   url: i.content.videos.url,
+                  quality: i.content.videos.quality
+                },
+                duration: i.content.duration,
+                language: i.content.language,
+                thumbnail: i.thumbnail,
+                backdrop: i.backdrop,
+                shortDescription: i.shortDescription,
+                releaseDate: i.releaseDate,
+                longDescription: i.longDescription,
+                tag: i.tag
+              };
+              return apiCategory(CategoryEntry);
+            }
+            return null;
+          })
+        );
+        validEntries = liveFeedsEntries.filter(Boolean);
+
+      } else if (e.name === "movies Experimental") {
+        const liveFeedsEntries = await Promise.all(
+          activeEntries.map(async (i: any) => {
+            const movieYTUrl = await getUrlVideo(i.content.videos.url)
+            if (movieYTUrl) {
+              const CategoryEntry: ICategory = {
+                _id: i._id,
+                title: i.title,
+                videos: {
+                  videoType: i.content.videos.videoType,
+                  url: movieYTUrl.replace(/\n/g, ""),
                   quality: i.content.videos.quality
                 },
                 duration: i.content.duration,
