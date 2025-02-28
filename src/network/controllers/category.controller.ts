@@ -73,7 +73,7 @@ export async function updateCategory(req: Request, res: Response) {
 }
 
 
-import { isHLSAvailable, checkHLSAvailability } from "../../utils/isHLSAvailable";
+import { checkHLSAvailability } from "../../utils/isHLSAvailable";
 
 import NodeCache from "node-cache";
 
@@ -115,6 +115,7 @@ export async function getApiChannel(req: Request, res: Response) {
           activeEntries.map(async (i: any) => {
             const streamData = await getTwitchStreamUrl(i.title);
             if (streamData && streamData.link) {
+              console.log(streamData.link)
               const CategoryEntry: ICategory = {
                 _id: i._id,
                 title: i.title,
@@ -138,7 +139,6 @@ export async function getApiChannel(req: Request, res: Response) {
           }
           ));
         validEntries = twitchEntries.filter(Boolean);
-
       } else if (e.name === "liveFeeds") {
         const liveFeedsEntries = await Promise.all(
           activeEntries.map(async (i: any) => {
@@ -244,10 +244,10 @@ export async function getApiChannel(req: Request, res: Response) {
       language: "en",
       ...sortedCategories,
     };
-
     // Guardar en caché
     // cache.set("api_channels", responseTemplate);
     cache.set("api_channels", responseTemplate, CACHE_SHORT);
+
 
     return res.status(200).json(responseTemplate);
   } catch (error) {

@@ -26,7 +26,10 @@ export async function isHLSAvailable(url: string): Promise<boolean> {
 
 export async function checkHLSAvailability(url: string): Promise<boolean> {
     try {
-        const { data } = await axios.get(url);
+        const { data } = await axios.get(url, {
+            timeout: 5000,
+            headers: { "User-Agent": "Mozilla/5.0" },
+        });
         return data.includes("#EXTM3U"); // Verifica que es un playlist válido
     } catch {
         return false; // No disponible
