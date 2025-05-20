@@ -1,6 +1,10 @@
 import axios from "./axios";
 import { AxiosResponse } from "axios";
 
+export async function checkStatusEntry(): Promise<AxiosResponse> {
+  return await axios.get(`/channel`);
+}
+
 export async function getAllEntry(): Promise<AxiosResponse> {
   return await axios.get(`/entry`);
 }

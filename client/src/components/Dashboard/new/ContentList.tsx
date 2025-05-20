@@ -83,14 +83,14 @@ const ContentList: React.FC = () => {
         </div>
       </div>
 
-      <div className="justify-center gap-4 space-y-4">
+      <div className="justify-center gap-4 space-y-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
         {filteredContents.length === 0 ? (
           <p className="text-gray-500 text-center py-4">No hay contenido disponible para esta categoría</p>
         ) : (
           filteredContents.map((content) => (
             <div
               key={content._id}
-              className="border rounded-lg p-4 bg-gray-50 hover:bg-gray-100 transition-colors"
+              className="border rounded-lg p-4 bg-gray-50 hover:bg-gray-100 transition-colors flex flex-col justify-between"
             >
               <div className='flex flex-wrap space-x-4 gap-4'>	
 

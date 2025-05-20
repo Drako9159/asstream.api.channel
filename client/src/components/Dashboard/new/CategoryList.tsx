@@ -4,6 +4,7 @@ import { deleteCategory, getAllCategory } from '../../../api/category';
 import { useCategoryStore } from '../../../store/category_store';
 import { useCurrentView } from '../../../store/current_view';
 import { useDashboardStore } from '../../../store/dashboard';
+import { checkStatusEntry } from '../../../api/entry';
 
 /*
 interface Category {
@@ -34,6 +35,9 @@ const CategoryList: React.FC = () => {
       try {
         const resposne = await getAllCategory();
         setCategories(resposne.data);
+
+        const status = await checkStatusEntry();
+        console.log(status);
 
       } catch (error) {
 
@@ -71,7 +75,7 @@ const CategoryList: React.FC = () => {
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
       <h2 className="text-2xl font-bold text-gray-800 mb-6">Categorías</h2>
-      <div className="space-y-4">
+      <div className="space-y-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {categories.map((category) => (
           <div
             key={category._id}
@@ -80,12 +84,14 @@ const CategoryList: React.FC = () => {
             <h3 className="text-lg font-semibold">{category.name} &nbsp;
               ({category.entries.length})
             </h3>
+            {/*
             <p className="text-gray-600 mt-1">Contenidos</p>
-            {category.entries.map((entry: any) => (
+           
+             {category.entries.map((entry: any) => (
               <p key={entry._id} className="text-gray-600 mt-1">
                 {entry}
               </p>
-            ))}
+            ))} */}
             <div className="mt-4 flex space-x-2">
               <button
                 onClick={() => handleUpdate(category)}
